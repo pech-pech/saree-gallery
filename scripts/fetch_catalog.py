@@ -213,15 +213,20 @@ def fetch_source(src):
                 log(f"    /products.json: {len(raw)}")
 
     if not items and platform in ("woocommerce", "auto"):
-        slugs_list = src.get("category_slugs", [])
-        raw = []
-        for slug in slugs_list:
-            raw = woo_products(base, category=slug)
-            if raw:
-                log(f"    category '{slug}': {len(raw)}")
+        raw, ids = [], set()
+        for slug in src.get("category_slugs", []):
+            got = woo_products(base, category=slug)
+            if got:
+                log(f"    category '{slug}': {len(got)}")
+                for p in got:
+                    if p.get("id") not in ids:
+                        ids.add(p.get("id")); raw.append(p)
                 break
-        if not raw:
-            raw = woo_products(base)
+        full = woo_products(base)  # also scan the whole store: some saris live only in collection categories
+        log(f"    full store scan: {len(full)}")
+        for p in full:
+            if p.get("id") not in ids:
+                ids.add(p.get("id")); raw.append(p)
         if raw:
             used = "woocommerce"
             slugs = {s.lower() for s in src.get("category_slugs", [])}
