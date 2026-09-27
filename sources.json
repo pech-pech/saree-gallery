@@ -1,0 +1,118 @@
+{
+  "_comment": "platform: shopify | woocommerce | auto. collections = paths under base that list sarees. keyword_filter=true keeps only items whose title/type/tags mention saree/sari.",
+  "sources": [
+    {
+      "key": "anavila",
+      "name": "Anavila",
+      "base": "https://www.anavila.com",
+      "platform": "woocommerce",
+      "category_slugs": [
+        "sari",
+        "saree",
+        "sarees"
+      ],
+      "keyword_filter": true,
+      "register": "handloom"
+    },
+    {
+      "key": "masaba",
+      "name": "House of Masaba",
+      "base": "https://www.houseofmasaba.com",
+      "platform": "shopify",
+      "collections": [
+        "/collections/saree",
+        "/collections/bridal-sarees"
+      ],
+      "keyword_filter": false,
+      "register": "designer"
+    },
+    {
+      "key": "rawmango",
+      "name": "Raw Mango",
+      "base": "https://rawmango.com",
+      "platform": "auto",
+      "keyword_filter": true,
+      "register": "handloom"
+    },
+    {
+      "key": "ekaya",
+      "name": "Ekaya",
+      "base": "https://ekaya.in",
+      "platform": "auto",
+      "keyword_filter": true,
+      "register": "handloom"
+    },
+    {
+      "key": "akaaro",
+      "name": "Akaaro",
+      "base": "https://akaaro.com",
+      "platform": "auto",
+      "keyword_filter": true,
+      "register": "handloom"
+    },
+    {
+      "key": "suta",
+      "name": "Suta",
+      "base": "https://suta.in",
+      "platform": "auto",
+      "keyword_filter": true,
+      "register": "handloom"
+    },
+    {
+      "key": "taneira",
+      "name": "Taneira",
+      "base": "https://www.taneira.com",
+      "platform": "auto",
+      "keyword_filter": true,
+      "register": "handloom"
+    },
+    {
+      "key": "payalkhandwala",
+      "name": "Payal Khandwala",
+      "base": "https://payalkhandwala.in",
+      "platform": "auto",
+      "keyword_filter": true,
+      "register": "handloom"
+    },
+    {
+      "key": "chidiyaa",
+      "name": "Chidiyaa",
+      "base": "https://chidiyaa.com",
+      "platform": "auto",
+      "keyword_filter": true,
+      "register": "handloom"
+    },
+    {
+      "key": "gaurang",
+      "name": "Gaurang Shah",
+      "base": "https://www.gaurang.com",
+      "platform": "auto",
+      "keyword_filter": true,
+      "register": "designer"
+    },
+    {
+      "key": "abrahamthakore",
+      "name": "Abraham & Thakore",
+      "base": "https://abrahamandthakore.com",
+      "platform": "auto",
+      "keyword_filter": true,
+      "register": "handloom"
+    },
+    {
+      "key": "torani",
+      "name": "Torani",
+      "base": "https://torani.in",
+      "platform": "auto",
+      "keyword_filter": true,
+      "register": "designer"
+    },
+    {
+      "key": "gulaal",
+      "name": "Gulaal",
+      "base": "https://gulaal.org",
+      "platform": "auto",
+      "keyword_filter": true,
+      "register": "designer"
+    }
+  ]
+}

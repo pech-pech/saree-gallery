@@ -1,0 +1,349 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Saree Gallery</title>
+<meta name="color-scheme" content="light dark">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;1,6..72,300;1,6..72,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #f6f5f1;
+    --ink: #1c1a17;
+    --ink-2: #5d5851;
+    --ink-3: #9a948b;
+    --line: #dedbd3;
+    --indigo: #2f3b5c;
+    --indigo-soft: #e3e6ee;
+    --sheet: #fbfaf7;
+    --radius: 2px;
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #16150f;
+      --ink: #ece8df;
+      --ink-2: #b2ac9f;
+      --ink-3: #746f66;
+      --line: #2c2a24;
+      --indigo: #a9b6dc;
+      --indigo-soft: #232838;
+      --sheet: #1d1c16;
+    }
+  }
+  html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+  *, *::before, *::after { box-sizing: inherit; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "Newsreader", Georgia, "Times New Roman", serif;
+    font-size: 17px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: inherit; }
+  button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
+  :focus-visible { outline: 2px solid var(--indigo); outline-offset: 2px; }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+
+  /* ---------- header ---------- */
+  header {
+    position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5;
+    background: color-mix(in srgb, var(--paper) 92%, transparent);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--line);
+  }
+  .bar {
+    display: flex; align-items: baseline; gap: 18px;
+    padding: 14px 20px 8px;
+    max-width: 1400px; margin: 0 auto;
+  }
+  .bar h1 {
+    margin: 0; font-weight: 400; font-size: 26px; letter-spacing: -0.01em; white-space: nowrap;
+  }
+  .bar h1 em { font-style: italic; color: var(--indigo); }
+  .bar .count { color: var(--ink-3); font-size: 15px; white-space: nowrap; }
+  .bar .spacer { flex: 1; }
+  .search {
+    border: 0; border-bottom: 1px solid var(--line); background: none;
+    font: inherit; font-size: 16px; color: var(--ink); padding: 4px 0; width: clamp(90px, 22vw, 200px); min-width: 0;
+  }
+  .search::placeholder { color: var(--ink-3); font-style: italic; }
+  .search:focus { outline: none; border-bottom-color: var(--indigo); }
+  .savedbtn { color: var(--ink-2); font-size: 15px; white-space: nowrap; }
+  .savedbtn[aria-pressed="true"] { color: var(--indigo); }
+
+  .strip {
+    display: flex; gap: 22px; overflow-x: auto; scrollbar-width: none;
+    padding: 4px 20px 12px; max-width: 1400px; margin: 0 auto;
+  }
+  .strip::-webkit-scrollbar { display: none; }
+  .chip {
+    white-space: nowrap; color: var(--ink-2); font-size: 16px;
+    border-bottom: 1px solid transparent; padding-bottom: 1px;
+  }
+  .chip[aria-pressed="true"] { color: var(--ink); border-bottom-color: var(--indigo); }
+  .chip small { color: var(--ink-3); font-size: 13px; margin-left: 4px; }
+  .strip.fabrics .chip { font-size: 15px; }
+
+  /* ---------- gallery ---------- */
+  main { max-width: 1400px; margin: 0 auto; padding: 18px 20px 80px; }
+  .gallery { columns: 2; column-gap: 14px; }
+  @media (min-width: 640px)  { .gallery { columns: 3; column-gap: 18px; } }
+  @media (min-width: 960px)  { .gallery { columns: 4; column-gap: 22px; } }
+  @media (min-width: 1300px) { .gallery { columns: 5; } }
+  .tile {
+    break-inside: avoid; margin: 0 0 22px; display: block; width: 100%; text-align: left;
+  }
+  .tile img {
+    width: 100%; height: auto; display: block; background: var(--indigo-soft);
+    border-radius: var(--radius); aspect-ratio: 4 / 5; object-fit: cover;
+  }
+  .tile .meta { padding: 8px 2px 0; }
+  .tile .brand { color: var(--ink-3); font-size: 14px; font-style: italic; }
+  .tile .title { font-size: 16px; line-height: 1.3; margin: 1px 0 2px; }
+  .tile .price { color: var(--ink-2); font-size: 15px; }
+  .tile.sold .price::after { content: " · sold out"; color: var(--ink-3); }
+  .tile .saved-mark { color: var(--indigo); margin-left: 6px; }
+
+  .empty { color: var(--ink-2); max-width: 46ch; padding: 60px 0; font-size: 18px; }
+  .empty code { font-family: ui-monospace, monospace; font-size: 14px; background: var(--indigo-soft); padding: 1px 5px; }
+
+  /* ---------- detail sheet ---------- */
+  .scrim {
+    position: fixed; inset: 0; background: rgba(20,18,14,.45); z-index: 10; display: none;
+  }
+  .scrim.open { display: block; }
+  .sheet {
+    position: fixed; z-index: 11; background: var(--sheet); overflow-y: auto;
+    left: 0; right: 0; bottom: 0; max-height: 92vh; border-radius: 14px 14px 0 0;
+    transform: translateY(100%); transition: transform .28s ease-out;
+    padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+  }
+  .sheet.open { transform: translateY(0); }
+  @media (min-width: 900px) {
+    .sheet {
+      top: 0; bottom: 0; left: auto; width: min(560px, 48vw); max-height: none;
+      border-radius: 0; transform: translateX(100%);
+    }
+    .sheet.open { transform: translateX(0); }
+    .imgs { padding-top: 54px; }
+  }
+  .sheet .close {
+    position: sticky; top: 0; float: right; margin: 10px 14px 0 0; z-index: 2;
+    width: 34px; height: 34px; border-radius: 50%; background: var(--paper);
+    display: grid; place-items: center; font-size: 20px; line-height: 1;
+  }
+  .imgs { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 6px; scrollbar-width: none; }
+  .imgs::-webkit-scrollbar { display: none; }
+  .imgs img {
+    scroll-snap-align: start; flex: 0 0 82%; max-width: 82%; aspect-ratio: 4/5; object-fit: cover;
+    background: var(--indigo-soft); display: block;
+  }
+  .imgs img:first-child { margin-left: 20px; }
+  .imgs img:last-child { margin-right: 20px; }
+  .detail { padding: 18px 22px 0; }
+  .detail .brand { color: var(--indigo); font-style: italic; font-size: 16px; }
+  .detail h2 { font-weight: 400; font-size: 26px; line-height: 1.2; margin: 2px 0 8px; letter-spacing: -0.01em; }
+  .detail .price { font-size: 19px; color: var(--ink-2); }
+  .detail .fabric { margin: 12px 0 0; color: var(--ink-2); font-size: 15px; }
+  .detail .fabric span { display: inline-block; margin-right: 10px; border-bottom: 1px dotted var(--ink-3); }
+  .detail p.desc { white-space: pre-line; color: var(--ink-2); font-size: 16px; margin: 16px 0 0; max-width: 62ch; }
+  .actions { display: flex; gap: 14px; margin-top: 22px; flex-wrap: wrap; }
+  .btn {
+    padding: 10px 18px; border: 1px solid var(--ink); border-radius: 999px; font-size: 16px;
+    text-decoration: none; display: inline-block;
+  }
+  .btn.primary { background: var(--indigo); border-color: var(--indigo); color: #fff; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .btn.primary { color: var(--paper); } }
+  .btn[aria-pressed="true"] { background: var(--indigo-soft); border-color: var(--indigo); }
+  .similar { padding: 26px 22px 0; }
+  .similar h3 { font-weight: 400; font-size: 17px; color: var(--ink-2); margin: 0 0 10px; }
+  .similar .row { display: flex; gap: 10px; overflow-x: auto; scrollbar-width: none; }
+  .similar .row::-webkit-scrollbar { display: none; }
+  .similar button { flex: 0 0 34%; text-align: left; }
+  .similar img { width: 100%; aspect-ratio: 4/5; object-fit: cover; display: block; background: var(--indigo-soft); border-radius: var(--radius); }
+  .similar .t { font-size: 13px; color: var(--ink-2); line-height: 1.25; margin-top: 4px; }
+
+  footer { color: var(--ink-3); font-size: 14px; text-align: center; padding: 30px 20px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="bar">
+    <h1>Saree <em>Gallery</em></h1>
+    <span class="count" id="count"></span>
+    <span class="spacer"></span>
+    <input class="search" id="q" type="search" placeholder="search…" aria-label="Search sarees">
+    <button class="savedbtn" id="savedToggle" aria-pressed="false">Saved</button>
+  </div>
+  <nav class="strip" id="brands" aria-label="Brands"></nav>
+  <nav class="strip fabrics" id="fabrics" aria-label="Fabrics"></nav>
+</header>
+
+<main>
+  <div class="gallery" id="gallery"></div>
+  <div class="empty" id="empty" hidden></div>
+</main>
+
+<footer id="foot"></footer>
+
+<div class="scrim" id="scrim"></div>
+<aside class="sheet" id="sheet" aria-hidden="true" role="dialog" aria-label="Saree details">
+  <button class="close" id="close" aria-label="Close">×</button>
+  <div id="sheetBody"></div>
+</aside>
+
+<script>
+(() => {
+  const $ = s => document.querySelector(s);
+  const state = { items: [], brands: [], brand: 'all', fabric: 'all', q: '', savedOnly: false,
+                  saved: new Set(), open: null };
+  try { state.saved = new Set(JSON.parse(localStorage.getItem('saree.saved') || '[]')); } catch {}
+  const persist = () => { try { localStorage.setItem('saree.saved', JSON.stringify([...state.saved])); } catch {} };
+  const brandName = k => (state.brands.find(b => b.key === k) || {}).name || k;
+  const fmtPrice = it => it.price == null ? '' :
+    new Intl.NumberFormat('en-IN', { style: 'currency', currency: it.currency || 'INR', maximumFractionDigits: 0 }).format(it.price);
+  const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const shuffleSeeded = (arr) => { // stable daily shuffle so the wall feels curated, not sorted by brand
+    const d = new Date(); let seed = d.getFullYear() * 400 + d.getMonth() * 32 + d.getDate();
+    const rnd = () => (seed = (seed * 9301 + 49297) % 233280) / 233280;
+    const a = arr.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+    return a;
+  };
+
+  function filtered() {
+    const q = state.q.trim().toLowerCase();
+    return state.items.filter(it =>
+      (state.brand === 'all' || it.brand === state.brand) &&
+      (state.fabric === 'all' || it.fabric.includes(state.fabric)) &&
+      (!state.savedOnly || state.saved.has(it.id)) &&
+      (!q || (it.title + ' ' + brandName(it.brand) + ' ' + it.fabric.join(' ') + ' ' + it.tags.join(' ')).toLowerCase().includes(q))
+    );
+  }
+
+  function renderStrips() {
+    const counts = {};
+    state.items.forEach(it => counts[it.brand] = (counts[it.brand] || 0) + 1);
+    const active = state.brands.filter(b => counts[b.key]);
+    $('#brands').innerHTML =
+      `<button class="chip" data-b="all" aria-pressed="${state.brand==='all'}">All<small>${state.items.length}</small></button>` +
+      active.map(b => `<button class="chip" data-b="${b.key}" aria-pressed="${state.brand===b.key}">${esc(b.name)}<small>${counts[b.key]}</small></button>`).join('');
+    const fc = {};
+    state.items.forEach(it => it.fabric.forEach(f => fc[f] = (fc[f] || 0) + 1));
+    const top = Object.entries(fc).sort((a, b) => b[1] - a[1]).slice(0, 14);
+    $('#fabrics').innerHTML = top.length ?
+      `<button class="chip" data-f="all" aria-pressed="${state.fabric==='all'}">any fabric</button>` +
+      top.map(([f, n]) => `<button class="chip" data-f="${f}" aria-pressed="${state.fabric===f}">${f}<small>${n}</small></button>`).join('') : '';
+  }
+
+  function renderGallery() {
+    const list = filtered();
+    $('#count').textContent = list.length ? `${list.length} sarees` : '';
+    const g = $('#gallery'), e = $('#empty');
+    if (!state.items.length) {
+      g.innerHTML = ''; e.hidden = false;
+      e.innerHTML = `The catalog is empty. Run the <code>Refresh saree catalog</code> workflow in GitHub Actions, or <code>python scripts/fetch_catalog.py</code> locally, to fill it.`;
+      return;
+    }
+    if (!list.length) {
+      g.innerHTML = ''; e.hidden = false;
+      e.textContent = state.savedOnly ? 'Nothing saved yet. Open a saree and tap Save.' : 'Nothing matches those filters.';
+      return;
+    }
+    e.hidden = true;
+    g.innerHTML = list.map(it => `
+      <button class="tile${it.available ? '' : ' sold'}" data-id="${it.id}">
+        <img src="${esc(it.images[0])}" alt="" loading="lazy" decoding="async">
+        <div class="meta">
+          <div class="brand">${esc(brandName(it.brand))}</div>
+          <div class="title">${esc(it.title)}${state.saved.has(it.id) ? '<span class="saved-mark">●</span>' : ''}</div>
+          <div class="price">${fmtPrice(it)}</div>
+        </div>
+      </button>`).join('');
+  }
+
+  function similarTo(it, n = 8) {
+    const score = o => {
+      if (o.id === it.id) return -1;
+      let s = 0;
+      o.fabric.forEach(f => { if (it.fabric.includes(f)) s += 3; });
+      if (o.brand !== it.brand) s += 1; // cross-brand is the point
+      const bo = state.brands.find(b => b.key === o.brand) || {}, bi = state.brands.find(b => b.key === it.brand) || {};
+      if (bo.register && bo.register === bi.register) s += 1;
+      if (it.price && o.price) s += Math.max(0, 2 - Math.abs(Math.log(o.price / it.price)));
+      return s;
+    };
+    return state.items.map(o => [score(o), o]).filter(x => x[0] > 0).sort((a, b) => b[0] - a[0]).slice(0, n).map(x => x[1]);
+  }
+
+  function openItem(id) {
+    const it = state.items.find(x => x.id === id); if (!it) return;
+    state.open = id;
+    const saved = state.saved.has(id);
+    $('#sheetBody').innerHTML = `
+      <div class="imgs">${it.images.map(s => `<img src="${esc(s)}" alt="" loading="lazy">`).join('')}</div>
+      <div class="detail">
+        <div class="brand">${esc(brandName(it.brand))}</div>
+        <h2>${esc(it.title)}</h2>
+        <div class="price">${fmtPrice(it)}${it.available ? '' : ' <span style="color:var(--ink-3)">· sold out</span>'}</div>
+        ${it.fabric.length ? `<div class="fabric">${it.fabric.map(f => `<span>${f}</span>`).join('')}</div>` : ''}
+        ${it.description ? `<p class="desc">${esc(it.description)}</p>` : ''}
+        <div class="actions">
+          <a class="btn primary" href="${esc(it.url)}" target="_blank" rel="noopener">Open on ${esc(brandName(it.brand))}</a>
+          <button class="btn" id="saveBtn" aria-pressed="${saved}">${saved ? 'Saved' : 'Save'}</button>
+        </div>
+      </div>
+      <div class="similar"><h3>Similar drapes</h3><div class="row">${similarTo(it).map(o => `
+        <button data-id="${o.id}"><img src="${esc(o.images[0])}" alt="" loading="lazy"><div class="t">${esc(brandName(o.brand))} — ${esc(o.title)}</div></button>`).join('')}</div></div>`;
+    $('#sheet').scrollTop = 0;
+    $('#sheet').classList.add('open'); $('#sheet').setAttribute('aria-hidden', 'false');
+    $('#scrim').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeSheet() {
+    state.open = null;
+    $('#sheet').classList.remove('open'); $('#sheet').setAttribute('aria-hidden', 'true');
+    $('#scrim').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  // ---- events
+  document.addEventListener('click', e => {
+    const chipB = e.target.closest('[data-b]'); if (chipB) { state.brand = chipB.dataset.b; renderStrips(); renderGallery(); return; }
+    const chipF = e.target.closest('[data-f]'); if (chipF) { state.fabric = chipF.dataset.f; renderStrips(); renderGallery(); return; }
+    const tile = e.target.closest('[data-id]'); if (tile) { openItem(tile.dataset.id); return; }
+    if (e.target.id === 'saveBtn') {
+      state.saved.has(state.open) ? state.saved.delete(state.open) : state.saved.add(state.open);
+      persist(); openItem(state.open); renderGallery(); return;
+    }
+    if (e.target.id === 'close' || e.target.id === 'scrim') closeSheet();
+  });
+  $('#q').addEventListener('input', e => { state.q = e.target.value; renderGallery(); });
+  $('#savedToggle').addEventListener('click', e => {
+    state.savedOnly = !state.savedOnly; e.target.setAttribute('aria-pressed', state.savedOnly); renderGallery();
+  });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && state.open) closeSheet(); });
+
+  // ---- load
+  fetch('data/catalog.json?t=' + Date.now()).then(r => r.json()).then(cat => {
+    state.brands = cat.brands || [];
+    state.items = shuffleSeeded((cat.items || []).filter(i => i.images && i.images.length));
+    renderStrips(); renderGallery();
+    if (cat.generated_at) {
+      const d = new Date(cat.generated_at);
+      const skipped = state.brands.filter(b => !b.count).map(b => b.name);
+      $('#foot').textContent = `Refreshed ${d.toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })}` +
+        (skipped.length ? ` · not reachable: ${skipped.join(', ')}` : '');
+    }
+  }).catch(() => { $('#empty').hidden = false; $('#empty').textContent = 'Could not load data/catalog.json.'; });
+})();
+</script>
+</body>
+</html>
