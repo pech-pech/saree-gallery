@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """
-Fetch saree listings from the shops in sources.json and write data/catalog.json.
+Fetch saree listings from the shops in sources.json and write two files:
+  data/index.json    what the gallery grid needs (loaded first, small)
+  data/details.json  descriptions, tags and extra images (loaded in the background)
 
 Supported platforms:
   shopify      -> {base}{collection}/products.json?limit=250&page=N   (public, no auth)
@@ -22,7 +24,10 @@ import requests
 
 ROOT = Path(__file__).resolve().parent.parent
 SOURCES_FILE = ROOT / "sources.json"
-OUT_FILE = ROOT / "data" / "catalog.json"
+DATA_DIR = ROOT / "data"
+INDEX_FILE = DATA_DIR / "index.json"
+DETAILS_FILE = DATA_DIR / "details.json"
+INDEX_KEYS = ("id", "brand", "title", "url", "price", "currency", "available", "fabric")
 
 UA = "Mozilla/5.0 (personal saree gallery; polite fetcher; contact via repo)"
 TIMEOUT = 25
@@ -165,7 +170,8 @@ def normalise_woo(p, src):
         price = int(prices.get("price")) / (10 ** minor)
     except (TypeError, ValueError):
         pass
-    images = [im.get("src") for im in (p.get("images") or []) if im.get("src")][:MAX_IMAGES]
+    imgs = [im for im in (p.get("images") or []) if im.get("src")][:MAX_IMAGES]
+    images = [im.get("src") for im in imgs]
     cats = [c.get("slug", "") for c in (p.get("categories") or [])]
     tags = [t.get("name", "") for t in (p.get("tags") or [])]
     desc = strip_html(p.get("short_description") or p.get("description"))
@@ -177,6 +183,7 @@ def normalise_woo(p, src):
         "price": price,
         "currency": prices.get("currency_code") or "INR",
         "images": images,
+        "thumb": imgs[0].get("thumbnail") if imgs else None,  # small WordPress size for the grid
         "available": bool(p.get("is_in_stock", True)),
         "type": ", ".join(cats),
         "tags": tags,
@@ -272,18 +279,31 @@ def main():
         brands.append(meta)
         time.sleep(1.0)
 
-    if not all_items and OUT_FILE.exists():
-        log("No items fetched at all; keeping previous catalog.json")
+    if not all_items and INDEX_FILE.exists():
+        log("No items fetched at all; keeping previous data files")
         sys.exit(0)
 
-    OUT_FILE.parent.mkdir(parents=True, exist_ok=True)
-    OUT_FILE.write_text(json.dumps({
-        "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
-        "brands": brands,
-        "items": all_items,
-    }, ensure_ascii=False, separators=(",", ":")))
-    log(f"Wrote {OUT_FILE} — {len(all_items)} items across {sum(1 for b in brands if b['count'])} brands")
+    write_data(datetime.now(timezone.utc).isoformat(timespec="seconds"), brands, all_items)
+    log(f"Wrote {INDEX_FILE.name} + {DETAILS_FILE.name} — {len(all_items)} items across "
+        f"{sum(1 for b in brands if b['count'])} brands")
 
+
+def write_data(generated_at, brands, items):
+    """Split items into a small grid index and a details file keyed by id. Nothing is dropped."""
+    index, details = [], {}
+    for i in items:
+        row = {k: i.get(k) for k in INDEX_KEYS}
+        row["img"] = i["images"][0]
+        if i.get("thumb"):
+            row["thumb"] = i["thumb"]
+        index.append(row)
+        details[i["id"]] = {"images": i["images"], "description": i.get("description", ""),
+                            "tags": i.get("tags", []), "type": i.get("type", ""),
+                            "published": i.get("published")}
+    DATA_DIR.mkdir(parents=True, exist_ok=True)
+    dump = lambda obj: json.dumps(obj, ensure_ascii=False, separators=(",", ":"))
+    INDEX_FILE.write_text(dump({"generated_at": generated_at, "brands": brands, "items": index}))
+    DETAILS_FILE.write_text(dump({"generated_at": generated_at, "items": details}))
 
 if __name__ == "__main__":
     main()

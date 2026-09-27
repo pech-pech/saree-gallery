@@ -7,7 +7,8 @@ Personal, non-commercial gallery of sarees from designer Indian labels. Static s
 - `sources.json` — the shop list. Each entry: key, name, base URL, platform (shopify | woocommerce | auto),
   optional `collections` (Shopify) or `category_slugs` (WooCommerce), `keyword_filter`, `register`
   (handloom | designer).
-- `scripts/fetch_catalog.py` — fetches every shop, keeps sarees only, normalises into `data/catalog.json`.
+- `scripts/fetch_catalog.py` — fetches every shop, keeps sarees only, normalises, then writes
+  `data/index.json` (grid fields only, ~150 KB gzipped) and `data/details.json` (images, description, tags, keyed by id).
   - Shopify: `{base}{collection}/products.json?limit=250&page=N`. In `auto` mode it guesses
     /collections/sarees|saree|sari|saris, stops at the first hit, else scans /products.json and keyword-filters.
   - WooCommerce: Store API `/wp-json/wc/store/v1/products`, category query merged with a full-store scan
@@ -21,6 +22,9 @@ Personal, non-commercial gallery of sarees from designer Indian labels. Static s
   (bottom sheet on mobile, side panel ≥900px), "Similar drapes" scored by shared fabric, price band,
   register, cross-brand preference. Renders in batches of 60 via IntersectionObserver.
   Items link out to the brand's product page; nothing is re-hosted.
+  Loads index.json first (revalidated with `cache: 'no-cache'`), then details.json?v=<generated_at> in the
+  background; search picks up tags once details arrive. Shopify images are requested resized via the CDN's
+  `width=` param (srcset 360/540/720 for tiles, 1080 in the sheet); WooCommerce tiles use the Store API thumbnail.
 
 ## Current shops (9)
 Anavila (woocommerce, main), House of Masaba (shopify, main), Raw Mango, Ekaya, Akaaro, Suta,

@@ -6,7 +6,7 @@ A personal, static gallery of sarees from designer Indian labels (Anavila, House
 
 1. Create a new **public** repo and push these files to `main`.
 2. Repo → Settings → Pages → Source: **Deploy from a branch** → `main` / `/ (root)` → Save.
-3. Repo → Actions → **Refresh saree catalog** → Run workflow. The first run fetches every shop in `sources.json` and commits `data/catalog.json`; Pages redeploys automatically.
+3. Repo → Actions → **Refresh saree catalog** → Run workflow. The first run fetches every shop in `sources.json` and commits `data/index.json` (the grid) and `data/details.json` (descriptions, tags, extra images); Pages redeploys automatically.
 4. Open `https://<your-user>.github.io/<repo>/`.
 
 The run log shows, per brand, which API worked and how many sarees were kept.

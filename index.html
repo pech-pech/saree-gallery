@@ -7,7 +7,7 @@
 <meta name="color-scheme" content="light dark">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;1,6..72,300;1,6..72,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;1,6..72,300;1,6..72,400&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
 <style>
   :root {
     --paper: #f6f5f1;
@@ -205,12 +205,18 @@
 (() => {
   const $ = s => document.querySelector(s);
   const state = { items: [], brands: [], brand: 'all', fabric: 'all', q: '', savedOnly: false,
-                  saved: new Set(), open: null };
+                  saved: new Set(), open: null, details: null };
   try { state.saved = new Set(JSON.parse(localStorage.getItem('saree.saved') || '[]')); } catch {}
   const persist = () => { try { localStorage.setItem('saree.saved', JSON.stringify([...state.saved])); } catch {} };
   const brandName = k => (state.brands.find(b => b.key === k) || {}).name || k;
   const fmtPrice = it => it.price == null ? '' :
     new Intl.NumberFormat('en-IN', { style: 'currency', currency: it.currency || 'INR', maximumFractionDigits: 0 }).format(it.price);
+  // Shopify's CDN resizes on request; ask for roughly what the screen needs instead of the original upload.
+  const sized = (url, w) => /\/\/cdn\.shopify\.com\//.test(url) ? url + (url.includes('?') ? '&' : '?') + 'width=' + w : url;
+  const srcset = url => /\/\/cdn\.shopify\.com\//.test(url) ? [360, 540, 720].map(w => `${sized(url, w)} ${w}w`).join(', ') : '';
+  const detail = it => (state.details && state.details[it.id]) || null;
+  const searchText = it => (it.title + ' ' + brandName(it.brand) + ' ' + it.fabric.join(' ') + ' ' +
+    ((detail(it) || {}).tags || []).join(' ')).toLowerCase();
   const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
   const shuffleSeeded = (arr) => { // stable daily shuffle so the wall feels curated, not sorted by brand
     const d = new Date(); let seed = d.getFullYear() * 400 + d.getMonth() * 32 + d.getDate();
@@ -225,7 +231,7 @@
       (state.brand === 'all' || it.brand === state.brand) &&
       (state.fabric === 'all' || it.fabric.includes(state.fabric)) &&
       (!state.savedOnly || state.saved.has(it.id)) &&
-      (!q || (it.title + ' ' + brandName(it.brand) + ' ' + it.fabric.join(' ') + ' ' + it.tags.join(' ')).toLowerCase().includes(q))
+      (!q || (it._s || (it._s = searchText(it))).includes(q))
     );
   }
 
@@ -267,7 +273,8 @@
   const BATCH = 60;
   const tileHTML = it => `
       <button class="tile${it.available ? '' : ' sold'}" data-id="${it.id}">
-        <img src="${esc(it.images[0])}" alt="" loading="lazy" decoding="async">
+        <img src="${esc(it.thumb || sized(it.img, 540))}" srcset="${esc(it.thumb ? '' : srcset(it.img))}"
+             sizes="(min-width: 1300px) 20vw, (min-width: 960px) 25vw, (min-width: 640px) 33vw, 50vw" alt="" loading="lazy" decoding="async">
         <div class="meta">
           <div class="brand">${esc(brandName(it.brand))}</div>
           <div class="title">${esc(it.title)}${state.saved.has(it.id) ? '<span class="saved-mark">●</span>' : ''}</div>
@@ -298,22 +305,23 @@
   function openItem(id) {
     const it = state.items.find(x => x.id === id); if (!it) return;
     state.open = id;
+    const d = detail(it) || { images: [it.img], description: '' };
     const saved = state.saved.has(id);
     $('#sheetBody').innerHTML = `
-      <div class="imgs">${it.images.map(s => `<img src="${esc(s)}" alt="" loading="lazy">`).join('')}</div>
+      <div class="imgs">${d.images.map(s => `<img src="${esc(sized(s, 1080))}" alt="" loading="lazy">`).join('')}</div>
       <div class="detail">
         <div class="brand">${esc(brandName(it.brand))}</div>
         <h2>${esc(it.title)}</h2>
         <div class="price">${fmtPrice(it)}${it.available ? '' : ' <span style="color:var(--ink-3)">· sold out</span>'}</div>
         ${it.fabric.length ? `<div class="fabric">${it.fabric.map(f => `<span>${f}</span>`).join('')}</div>` : ''}
-        ${it.description ? `<p class="desc">${esc(it.description)}</p>` : ''}
+        ${d.description ? `<p class="desc">${esc(d.description)}</p>` : ''}
         <div class="actions">
           <a class="btn primary" href="${esc(it.url)}" target="_blank" rel="noopener">Open on ${esc(brandName(it.brand))}</a>
           <button class="btn" id="saveBtn" aria-pressed="${saved}">${saved ? 'Saved' : 'Save'}</button>
         </div>
       </div>
       <div class="similar"><h3>Similar drapes</h3><div class="row">${similarTo(it).map(o => `
-        <button data-id="${o.id}"><img src="${esc(o.images[0])}" alt="" loading="lazy"><div class="t">${esc(brandName(o.brand))} — ${esc(o.title)}</div></button>`).join('')}</div></div>`;
+        <button data-id="${o.id}"><img src="${esc(o.thumb || sized(o.img, 360))}" alt="" loading="lazy"><div class="t">${esc(brandName(o.brand))} — ${esc(o.title)}</div></button>`).join('')}</div></div>`;
     $('#sheet').scrollTop = 0;
     $('#sheet').classList.add('open'); $('#sheet').setAttribute('aria-hidden', 'false');
     $('#scrim').classList.add('open');
@@ -351,10 +359,11 @@
   new IntersectionObserver(es => { if (es.some(x => x.isIntersecting)) appendBatch(); }, { rootMargin: '1200px 0px' })
     .observe(document.getElementById('sentinel'));
 
-  // ---- load
-  fetch('data/catalog.json?t=' + Date.now()).then(r => r.json()).then(cat => {
+  // ---- load: the small index first so the wall shows quickly, then details in the background.
+  // no-cache = revalidate with the server, so an unchanged file comes back as a tiny "not modified".
+  fetch('data/index.json', { cache: 'no-cache' }).then(r => r.json()).then(cat => {
     state.brands = cat.brands || [];
-    state.items = shuffleSeeded((cat.items || []).filter(i => i.images && i.images.length));
+    state.items = shuffleSeeded((cat.items || []).filter(i => i.img));
     renderStrips(); renderGallery();
     if (cat.generated_at) {
       const d = new Date(cat.generated_at);
@@ -362,7 +371,15 @@
       $('#foot').textContent = `Refreshed ${d.toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })}` +
         (skipped.length ? ` · not reachable: ${skipped.join(', ')}` : '');
     }
-  }).catch(() => { $('#empty').hidden = false; $('#empty').textContent = 'Could not load data/catalog.json.'; });
+    // versioned by refresh time, so the browser can keep it cached until the next refresh
+    return fetch('data/details.json?v=' + encodeURIComponent(cat.generated_at || '')).then(r => r.json()).then(det => {
+      state.details = det.items || {};
+      state.items.forEach(it => { delete it._s; });   // search now includes tags
+      if (state.q) renderGallery();
+      if (state.open) { const top = $('#sheet').scrollTop; openItem(state.open); $('#sheet').scrollTop = top; }
+      window.__ready = true;
+    }).catch(() => {});                               // the gallery still works without details
+  }).catch(() => { $('#empty').hidden = false; $('#empty').textContent = 'Could not load data/index.json.'; });
 })();
 </script>
 </body>
