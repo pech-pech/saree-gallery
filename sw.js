@@ -2,7 +2,7 @@
 // Page and index.json: network first, so the daily refresh always shows; the cached copy is used offline.
 // details.json?v=<refresh time>: cache first, since each refresh gets a new URL; older copies are dropped.
 // Brand photos are not touched here; the browser's own cache handles them.
-const CACHE = 'saree-v1';
+const CACHE = 'saree-v2';
 const SHELL = ['./', 'index.html', 'manifest.webmanifest', 'icons/icon-192.png', 'icons/icon-512.png'];
 
 self.addEventListener('install', e => {

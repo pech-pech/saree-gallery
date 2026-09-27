@@ -1,4 +1,4 @@
-# Saree Gallery
+# Chai Chai Chai by Pakhi (saree gallery)
 
 A personal, static gallery of sarees from designer Indian labels (Anavila, House of Masaba and others), refreshed daily by GitHub Actions and served on GitHub Pages.
 

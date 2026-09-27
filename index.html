@@ -3,7 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Saree Gallery</title>
+<title>Chai Chai Chai by Pakhi</title>
+<meta name="application-name" content="Chai Chai Chai">
+<meta name="apple-mobile-web-app-title" content="Chai Chai Chai">
 <meta name="color-scheme" content="light dark">
 <meta name="theme-color" content="#f6f5f1" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#16150f" media="(prefers-color-scheme: dark)">
@@ -13,6 +15,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;1,6..72,300;1,6..72,400&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<link href="https://fonts.googleapis.com/css2?family=Parisienne&text=Chai&display=swap" rel="stylesheet">
 <style>
   :root {
     --paper: #f6f5f1;
@@ -60,8 +63,9 @@
     background: var(--paper);
   }
   .bar { display: flex; align-items: center; gap: 6px; padding: 8px 10px 4px 18px; max-width: 1400px; margin: 0 auto; }
-  .bar h1 { margin: 0 auto 0 0; font-weight: 400; font-size: 23px; letter-spacing: -0.01em; white-space: nowrap; }
-  .bar h1 em { color: var(--indigo); }
+  .bar h1 { margin: 0 auto 0 0; font-weight: 400; white-space: nowrap; display: flex; flex-direction: column; }
+  .bar h1 .t { font-family: "Parisienne", "Newsreader", cursive; font-size: 30px; line-height: 1.1; }
+  .bar h1 .by { font: 500 10.5px/1.6 var(--ui); letter-spacing: .2em; text-transform: uppercase; color: var(--indigo); }
   .ibtn { width: 42px; height: 42px; display: grid; place-items: center; border-radius: 50%; position: relative; color: var(--ink); }
   .ibtn[aria-pressed="true"] { color: var(--indigo); }
   .ibtn .badge { position: absolute; top: 3px; right: 1px; min-width: 18px; padding: 0 5px; border-radius: 999px;
@@ -226,7 +230,7 @@
 
 <header id="hdr">
   <div class="bar">
-    <h1>Saree <em>Gallery</em></h1>
+    <h1><span class="t">Chai Chai Chai</span><span class="by">by Pakhi</span></h1>
     <button class="ibtn" id="searchBtn" aria-label="Search" aria-expanded="false"><svg class="i" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg></button>
     <button class="ibtn" id="savedToggle" aria-label="Show saved sarees" aria-pressed="false"><svg class="i" viewBox="0 0 24 24"><path d="M12 20s-7.5-4.6-7.5-10A4.3 4.3 0 0 1 12 7.4 4.3 4.3 0 0 1 19.5 10c0 5.4-7.5 10-7.5 10z"/></svg><span class="badge" id="savedN" hidden></span></button>
     <button class="ibtn" id="modeToggle" aria-label="Switch to grid view"><svg class="i" viewBox="0 0 24 24"><rect x="4" y="4" width="6.5" height="6.5" rx="1"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="1"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="1"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1"/></svg></button>
