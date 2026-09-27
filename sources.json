@@ -59,17 +59,9 @@
       "register": "handloom"
     },
     {
-      "key": "taneira",
-      "name": "Taneira",
-      "base": "https://www.taneira.com",
-      "platform": "auto",
-      "keyword_filter": true,
-      "register": "handloom"
-    },
-    {
       "key": "payalkhandwala",
       "name": "Payal Khandwala",
-      "base": "https://payalkhandwala.in",
+      "base": "https://payalkhandwala.com",
       "platform": "auto",
       "keyword_filter": true,
       "register": "handloom"
@@ -83,14 +75,6 @@
       "register": "handloom"
     },
     {
-      "key": "gaurang",
-      "name": "Gaurang Shah",
-      "base": "https://www.gaurang.com",
-      "platform": "auto",
-      "keyword_filter": true,
-      "register": "designer"
-    },
-    {
       "key": "abrahamthakore",
       "name": "Abraham & Thakore",
       "base": "https://abrahamandthakore.com",
@@ -102,14 +86,6 @@
       "key": "torani",
       "name": "Torani",
       "base": "https://torani.in",
-      "platform": "auto",
-      "keyword_filter": true,
-      "register": "designer"
-    },
-    {
-      "key": "gulaal",
-      "name": "Gulaal",
-      "base": "https://gulaal.org",
       "platform": "auto",
       "keyword_filter": true,
       "register": "designer"

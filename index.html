@@ -190,6 +190,7 @@
 <main>
   <div class="gallery" id="gallery"></div>
   <div class="empty" id="empty" hidden></div>
+  <div id="sentinel" aria-hidden="true" style="height:1px"></div>
 </main>
 
 <footer id="foot"></footer>
@@ -258,7 +259,13 @@
       return;
     }
     e.hidden = true;
-    g.innerHTML = list.map(it => `
+    state.list = list; state.shown = 0;
+    g.innerHTML = '';
+    appendBatch();
+  }
+
+  const BATCH = 60;
+  const tileHTML = it => `
       <button class="tile${it.available ? '' : ' sold'}" data-id="${it.id}">
         <img src="${esc(it.images[0])}" alt="" loading="lazy" decoding="async">
         <div class="meta">
@@ -266,7 +273,12 @@
           <div class="title">${esc(it.title)}${state.saved.has(it.id) ? '<span class="saved-mark">●</span>' : ''}</div>
           <div class="price">${fmtPrice(it)}</div>
         </div>
-      </button>`).join('');
+      </button>`;
+  function appendBatch() {
+    if (!state.list || state.shown >= state.list.length) return;
+    const next = state.list.slice(state.shown, state.shown + BATCH);
+    $('#gallery').insertAdjacentHTML('beforeend', next.map(tileHTML).join(''));
+    state.shown += next.length;
   }
 
   function similarTo(it, n = 8) {
@@ -321,7 +333,11 @@
     const tile = e.target.closest('[data-id]'); if (tile) { openItem(tile.dataset.id); return; }
     if (e.target.id === 'saveBtn') {
       state.saved.has(state.open) ? state.saved.delete(state.open) : state.saved.add(state.open);
-      persist(); openItem(state.open); renderGallery(); return;
+      persist(); openItem(state.open);
+      const t = document.querySelector(`.tile[data-id="${CSS.escape(state.open)}"] .title`);
+      if (t) { const m = t.querySelector('.saved-mark'); if (state.saved.has(state.open)) { if (!m) t.insertAdjacentHTML('beforeend', '<span class="saved-mark">●</span>'); } else if (m) m.remove(); }
+      if (state.savedOnly) renderGallery();
+      return;
     }
     if (e.target.id === 'close' || e.target.id === 'scrim') closeSheet();
   });
@@ -330,6 +346,10 @@
     state.savedOnly = !state.savedOnly; e.target.setAttribute('aria-pressed', state.savedOnly); renderGallery();
   });
   document.addEventListener('keydown', e => { if (e.key === 'Escape' && state.open) closeSheet(); });
+
+  // ---- infinite scroll
+  new IntersectionObserver(es => { if (es.some(x => x.isIntersecting)) appendBatch(); }, { rootMargin: '1200px 0px' })
+    .observe(document.getElementById('sentinel'));
 
   // ---- load
   fetch('data/catalog.json?t=' + Date.now()).then(r => r.json()).then(cat => {
