@@ -15,6 +15,11 @@ Personal, non-commercial gallery of sarees from designer Indian labels. Static s
     (needed for Anavila: some saris sit only in collection categories).
   - Caps: MAX_PER_BRAND=1000 kept per shop, MAX_SCAN=3000 raw scanned. Descriptions trimmed to 500 chars, up to 20 images.
   - One failing shop never fails the run; an empty run keeps the previous catalog.
+- Installable app (PWA): `manifest.webmanifest`, `icons/`, `sw.js`. The service worker serves the page and
+  `data/index.json` network-first (offline fallback) and `data/details.json?v=` cache-first; it never caches brand
+  photos. Bump `CACHE` in sw.js if the cached file list changes.
+- Feed photos use `object-fit: contain` pinned to the top, switching to cover only when that crops <12%, so
+  20:9–22:9 phones show the whole photo with the spare height below it (under the text).
 - `.github/workflows/refresh.yml` — daily 02:30 UTC, manual dispatch, and on pushes touching
   `sources.json` or `scripts/**`. Has a concurrency group and `git pull --rebase` before push.
 - `index.html` — single-file gallery. Two views, toggled in the header and remembered (default Feed):
