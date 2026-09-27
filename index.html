@@ -5,7 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Saree Gallery</title>
 <meta name="color-scheme" content="light dark">
-<meta name="theme-color" content="#2f3b5c">
+<meta name="theme-color" content="#f6f5f1" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#16150f" media="(prefers-color-scheme: dark)">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icons/icon-192.png" type="image/png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -18,107 +19,113 @@
     --ink: #1c1a17;
     --ink-2: #5d5851;
     --ink-3: #9a948b;
-    --line: #dedbd3;
+    --line: #e2dfd7;
     --indigo: #2f3b5c;
-    --indigo-soft: #e3e6ee;
+    --indigo-soft: #e9ecf4;
     --sheet: #fbfaf7;
+    --raised: #ffffff;
+    --card: #ebe8e1;
+    --on-indigo: #ffffff;
     --radius: 2px;
+    --ui: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
     box-sizing: border-box;
     padding-top: env(safe-area-inset-top, 0px);
     padding-bottom: env(safe-area-inset-bottom, 0px);
   }
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
-      --paper: #16150f;
-      --ink: #ece8df;
-      --ink-2: #b2ac9f;
-      --ink-3: #746f66;
-      --line: #2c2a24;
-      --indigo: #a9b6dc;
-      --indigo-soft: #232838;
-      --sheet: #1d1c16;
+      --paper: #16150f; --ink: #ece8df; --ink-2: #b2ac9f; --ink-3: #7d776d; --line: #2e2c25;
+      --indigo: #a9b6dc; --indigo-soft: #232838; --sheet: #1d1c16; --raised: #22211b; --card: #1f1e18; --on-indigo: #16150f;
     }
   }
   html { scroll-padding-top: env(safe-area-inset-top, 0px); }
   *, *::before, *::after { box-sizing: inherit; }
   body {
-    margin: 0;
-    background: var(--paper);
-    color: var(--ink);
-    font-family: "Newsreader", Georgia, "Times New Roman", serif;
-    font-size: 17px;
-    line-height: 1.5;
+    margin: 0; background: var(--paper); color: var(--ink);
+    font-family: "Newsreader", Georgia, "Times New Roman", serif; font-size: 17px; line-height: 1.5;
     -webkit-font-smoothing: antialiased;
   }
+  [hidden] { display: none !important; }
   a { color: inherit; }
   button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
   :focus-visible { outline: 2px solid var(--indigo); outline-offset: 2px; }
   @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+  .caps { font: 500 11px var(--ui); letter-spacing: .14em; text-transform: uppercase; }
+  svg.i { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; display: block; }
+  svg.i.fillme { fill: currentColor; }
 
   /* ---------- header ---------- */
   header {
-    position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5;
-    background: color-mix(in srgb, var(--paper) 92%, transparent);
-    backdrop-filter: blur(8px);
-    border-bottom: 1px solid var(--line);
+    position: sticky; top: env(safe-area-inset-top, 0px); z-index: 6;
+    background: var(--paper);
   }
-  .bar {
-    display: flex; align-items: baseline; gap: 18px;
-    padding: 14px 20px 8px;
-    max-width: 1400px; margin: 0 auto;
+  .bar { display: flex; align-items: center; gap: 6px; padding: 8px 10px 4px 18px; max-width: 1400px; margin: 0 auto; }
+  .bar h1 { margin: 0 auto 0 0; font-weight: 400; font-size: 23px; letter-spacing: -0.01em; white-space: nowrap; }
+  .bar h1 em { color: var(--indigo); }
+  .ibtn { width: 42px; height: 42px; display: grid; place-items: center; border-radius: 50%; position: relative; color: var(--ink); }
+  .ibtn[aria-pressed="true"] { color: var(--indigo); }
+  .ibtn .badge { position: absolute; top: 3px; right: 1px; min-width: 18px; padding: 0 5px; border-radius: 999px;
+                 background: var(--indigo); color: var(--on-indigo); font: 600 10px/16px var(--ui); text-align: center; }
+  .searchrow { padding: 2px 18px 8px; max-width: 1400px; margin: 0 auto; }
+  .searchrow input {
+    width: 100%; font: 16px var(--ui); color: var(--ink); background: var(--raised);
+    border: 1px solid var(--line); border-radius: 999px; padding: 9px 16px;
   }
-  .bar h1 {
-    margin: 0; font-weight: 400; font-size: 26px; letter-spacing: -0.01em; white-space: nowrap;
+  .searchrow input:focus { outline: none; border-color: var(--indigo); }
+  .frow { display: flex; align-items: center; gap: 8px; padding: 4px 18px 12px; max-width: 1400px; margin: 0 auto; }
+  .fbtn {
+    display: inline-flex; align-items: center; gap: 6px; padding: 7px 12px 7px 14px; border-radius: 999px;
+    border: 1px solid var(--line); background: var(--raised); color: var(--ink); font: 500 14px var(--ui); white-space: nowrap;
   }
-  .bar h1 em { font-style: italic; color: var(--indigo); }
-  .bar .count { color: var(--ink-3); font-size: 15px; white-space: nowrap; }
-  .bar .spacer { flex: 1; }
-  .search {
-    border: 0; border-bottom: 1px solid var(--line); background: none;
-    font: inherit; font-size: 16px; color: var(--ink); padding: 4px 0; width: clamp(90px, 22vw, 200px); min-width: 0;
-  }
-  .search { min-width: 84px; }
-  @media (max-width: 480px) { .bar { gap: 12px; } .bar .count { display: none; } }
-  .search::placeholder { color: var(--ink-3); font-style: italic; }
-  .search:focus { outline: none; border-bottom-color: var(--indigo); }
-  .savedbtn { color: var(--ink-2); font-size: 15px; white-space: nowrap; }
-  .savedbtn[aria-pressed="true"] { color: var(--indigo); }
+  .fbtn svg.i { width: 15px; height: 15px; transition: transform .2s; }
+  .fbtn[aria-expanded="true"] { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+  .fbtn[aria-expanded="true"] svg.i { transform: rotate(180deg); }
+  .fbtn .n { background: var(--indigo); color: var(--on-indigo); border-radius: 999px; padding: 0 6px; font-size: 11px; line-height: 17px; }
+  .fbtn .n:empty { display: none; }
+  .fbtn[aria-expanded="true"] .n { background: var(--paper); color: var(--ink); }
+  .fbtn.active:not([aria-expanded="true"]) { border-color: var(--indigo); color: var(--indigo); }
+  .count { margin-left: auto; font: 13px var(--ui); color: var(--ink-3); white-space: nowrap; font-variant-numeric: tabular-nums; }
 
-  .strip {
-    display: flex; gap: 22px; overflow-x: auto; scrollbar-width: none;
-    padding: 4px 20px 12px; max-width: 1400px; margin: 0 auto;
+  /* ---------- filter dropdown ---------- */
+  .dim { position: fixed; left: 0; right: 0; bottom: 0; background: rgba(28,26,23,.38); z-index: 7; }
+  .panel {
+    position: fixed; left: 12px; right: 12px; z-index: 8; max-width: 560px; margin: 0 auto;
+    background: var(--sheet); border-radius: 16px; box-shadow: 0 12px 40px rgba(0,0,0,.22);
+    padding: 16px 16px 14px; max-height: calc(100dvh - 180px); display: flex; flex-direction: column;
   }
-  .strip::-webkit-scrollbar { display: none; }
-  .chip {
-    white-space: nowrap; color: var(--ink-2); font-size: 16px;
-    border-bottom: 1px solid transparent; padding-bottom: 1px;
+  .panel .head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px; color: var(--ink-3); }
+  .panel .head button { font: 14px var(--ui); color: var(--indigo); }
+  .opts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; overflow-y: auto; min-height: 0; }
+  .opt {
+    display: flex; justify-content: space-between; align-items: center; gap: 8px; text-align: left;
+    padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--raised); font: 15px var(--ui);
   }
-  .chip[aria-pressed="true"] { color: var(--ink); border-bottom-color: var(--indigo); }
-  .chip small { color: var(--ink-3); font-size: 13px; margin-left: 4px; }
-  .strip.fabrics .chip { font-size: 15px; }
+  .opt small { color: var(--ink-3); font-size: 12px; font-variant-numeric: tabular-nums; }
+  .opt[aria-pressed="true"] { border-color: var(--indigo); background: var(--indigo-soft); color: var(--indigo); font-weight: 500; }
+  .opt[aria-pressed="true"] small { color: var(--indigo); }
+  .opt:disabled { opacity: .4; }
+  .cta { margin-top: 12px; padding: 12px; border-radius: 999px; background: var(--ink); color: var(--paper); font: 500 15px var(--ui); }
 
-  /* ---------- gallery ---------- */
-  main { max-width: 1400px; margin: 0 auto; padding: 18px 20px 80px; }
-  .gallery { columns: 2; column-gap: 14px; }
+  /* ---------- grid ---------- */
+  main { max-width: 1400px; margin: 0 auto; padding: 6px 16px 80px; }
+  .gallery { columns: 2; column-gap: 12px; }
   @media (min-width: 640px)  { .gallery { columns: 3; column-gap: 18px; } }
   @media (min-width: 960px)  { .gallery { columns: 4; column-gap: 22px; } }
   @media (min-width: 1300px) { .gallery { columns: 5; } }
-  .tile {
-    break-inside: avoid; margin: 0 0 22px; display: block; width: 100%; text-align: left;
-  }
+  .tile { break-inside: avoid; margin: 0 0 20px; display: block; width: 100%; text-align: left; }
   .tile img {
-    width: 100%; height: auto; display: block; background: var(--indigo-soft);
-    border-radius: var(--radius); aspect-ratio: 4 / 5; object-fit: cover;
+    width: 100%; height: auto; display: block; background: var(--card);
+    border-radius: 12px; aspect-ratio: 4 / 5; object-fit: cover;
   }
   .tile .meta { padding: 8px 2px 0; }
-  .tile .brand { color: var(--ink-3); font-size: 14px; font-style: italic; }
-  .tile .title { font-size: 16px; line-height: 1.3; margin: 1px 0 2px; }
+  .tile .brand { color: var(--ink-3); }
+  .tile .title { font-size: 16px; line-height: 1.3; margin: 2px 0 2px; }
   .tile .price { color: var(--ink-2); font-size: 15px; }
   .tile.sold .price::after { content: " · sold out"; color: var(--ink-3); }
   .tile .saved-mark { color: var(--indigo); margin-left: 6px; }
-
-  .empty { color: var(--ink-2); max-width: 46ch; padding: 60px 0; font-size: 18px; }
+  .empty { color: var(--ink-2); max-width: 46ch; padding: 60px 4px; font-size: 18px; }
   .empty code { font-family: ui-monospace, monospace; font-size: 14px; background: var(--indigo-soft); padding: 1px 5px; }
+  footer { color: var(--ink-3); font: 13px var(--ui); text-align: center; padding: 30px 20px; }
 
   /* ---------- detail sheet ---------- */
   .scrim {
@@ -176,8 +183,7 @@
   .similar img { width: 100%; aspect-ratio: 4/5; object-fit: cover; display: block; background: var(--indigo-soft); border-radius: var(--radius); }
   .similar .t { font-size: 13px; color: var(--ink-2); line-height: 1.25; margin-top: 4px; }
 
-  /* ---------- feed: one saree per screen, photos swipe sideways ---------- */
-  .modebtn { color: var(--ink-2); font-size: 15px; white-space: nowrap; }
+  /* ---------- feed: one saree per screen as a card, photos swipe sideways ---------- */
   body.feed-mode {
     height: calc(100dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
     display: flex; flex-direction: column; overflow: hidden;
@@ -187,71 +193,63 @@
   #feed { display: none; }
   body.feed-mode #feed {
     display: block; flex: 1; min-height: 0; overflow-y: auto; scroll-snap-type: y mandatory;
-    overscroll-behavior: contain; scrollbar-width: none; background: #0f0e0b;
+    overscroll-behavior: contain; scrollbar-width: none;
   }
   #feed::-webkit-scrollbar { display: none; }
-  .slide { height: 100%; scroll-snap-align: start; scroll-snap-stop: always; position: relative; overflow: hidden; color: #fbfaf7; }
-  .strip-x {
-    height: 100%; display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none;
-    overscroll-behavior-x: contain;
-  }
+  .slide { height: 100%; scroll-snap-align: start; scroll-snap-stop: always; display: flex; flex-direction: column; max-width: 560px; margin: 0 auto; }
+  .card { flex: 1; min-height: 0; margin: 0 12px; border-radius: 18px; overflow: hidden; position: relative; background: var(--card); }
+  .strip-x { height: 100%; display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; overscroll-behavior-x: contain; }
   .strip-x::-webkit-scrollbar { display: none; }
-  .strip-x img { flex: 0 0 100%; width: 100%; height: 100%; object-fit: contain; scroll-snap-align: start; display: block; background: #0f0e0b; }
+  .strip-x img { flex: 0 0 100%; width: 100%; height: 100%; object-fit: contain; scroll-snap-align: start; display: block; }
   .strip-x img.fill { object-fit: cover; }
-  /* the whole photo sits at the top; on tall screens the spare height goes below it, under the text */
-  .strip-x img:not(.fill) { object-position: center top; }
-  /* phone on its side: keep the filter rows out of the way so the photo gets the height */
-  @media (max-height: 520px) { body.feed-mode .strip { display: none; } body.feed-mode .bar { padding-block: 8px; } }
-  .slide .pos {
-    position: absolute; top: 12px; right: 12px; font-size: 13px; font-variant-numeric: tabular-nums;
-    background: rgba(15,14,11,.5); padding: 2px 9px; border-radius: 999px; pointer-events: none;
-  }
-  .slide .dots { position: absolute; top: 18px; left: 50%; transform: translateX(-50%); display: flex; gap: 5px; pointer-events: none; }
-  .slide .dots i { width: 6px; height: 6px; border-radius: 50%; background: rgba(251,250,247,.45); }
-  .slide .dots i.on { background: #fbfaf7; }
-  .slide .shade { position: absolute; inset: auto 0 0 0; height: 50%; pointer-events: none;
-                  background: linear-gradient(to top, rgba(15,14,11,.85), rgba(15,14,11,0)); }
-  .slide .meta { position: absolute; left: 16px; right: 80px; bottom: 20px; display: grid; gap: 3px; }
-  .slide .meta .b { font-style: italic; color: #c9d2ec; font-size: 15px; }
-  .slide .meta .t { font-size: 22px; line-height: 1.2; text-align: left; text-wrap: balance; }
-  .slide .meta .p { color: rgba(251,250,247,.82); font-size: 15px; display: flex; flex-wrap: wrap; gap: 4px 10px; }
-  .slide .meta .p span.f { border-bottom: 1px dotted rgba(251,250,247,.5); }
-  .slide .meta .d { font-size: 15px; color: rgba(251,250,247,.85); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-  .slide .meta a { font-size: 15px; text-underline-offset: 3px; width: fit-content; }
-  .rail { position: absolute; right: 10px; bottom: 22px; display: grid; gap: 16px; justify-items: center; font-size: 12px; }
-  .rail button { display: grid; justify-items: center; gap: 2px; color: #fbfaf7; }
-  .rail .ico { width: 48px; height: 48px; border-radius: 50%; background: rgba(15,14,11,.45); display: grid; place-items: center; font-size: 22px; }
-  .rail button[aria-pressed="true"] .ico { background: #2f3b5c; }
-  .burst { position: absolute; left: 50%; top: 42%; font-size: 96px; transform: translate(-50%,-50%) scale(.4); opacity: 0; pointer-events: none; }
+  .seg { position: absolute; top: 10px; left: 12px; right: 12px; display: flex; gap: 4px; pointer-events: none; }
+  .seg i { flex: 1; height: 2.5px; border-radius: 2px; background: rgba(255,255,255,.45); box-shadow: 0 0 2px rgba(0,0,0,.25); }
+  .seg i.on { background: #fff; }
+  .pos { position: absolute; top: 10px; right: 12px; font: 12px var(--ui); color: #fff; background: rgba(0,0,0,.35); padding: 2px 8px; border-radius: 999px; pointer-events: none; }
+  .burst { position: absolute; left: 50%; top: 45%; transform: translate(-50%,-50%) scale(.4); opacity: 0; pointer-events: none; color: #fff; filter: drop-shadow(0 2px 8px rgba(0,0,0,.3)); }
+  .burst svg.i { width: 96px; height: 96px; }
   .burst.go { animation: burst .7s ease-out; }
   @keyframes burst { 30% { opacity: .95; transform: translate(-50%,-50%) scale(1.05); } 100% { opacity: 0; transform: translate(-50%,-50%) scale(1.2); } }
-  .feed-end { height: 100%; scroll-snap-align: start; display: grid; place-content: center; gap: 14px; text-align: center; color: #d8d3c8; padding: 0 24px; }
-  .feed-end button { color: #fbfaf7; border: 1px solid #fbfaf7; border-radius: 999px; padding: 8px 18px; }
-
-  footer { color: var(--ink-3); font-size: 14px; text-align: center; padding: 30px 20px; }
+  .info { display: flex; align-items: center; gap: 12px; padding: 12px 20px 16px; }
+  .info .txt { flex: 1; min-width: 0; display: grid; gap: 1px; }
+  .info .brand { color: var(--ink-3); }
+  .info .t { text-align: left; font-size: 20px; line-height: 1.25; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .info .p { color: var(--ink-2); font-size: 15px; font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .round { width: 48px; height: 48px; flex: none; border-radius: 50%; border: 1px solid var(--line); background: var(--raised); display: grid; place-items: center; }
+  .round.save[aria-pressed="true"] { background: var(--indigo); border-color: var(--indigo); color: var(--on-indigo); }
+  .feed-end { height: 100%; scroll-snap-align: start; display: grid; place-content: center; gap: 14px; text-align: center; color: var(--ink-2); padding: 0 24px; }
+  .feed-end button { border: 1px solid var(--ink); border-radius: 999px; padding: 8px 18px; font: 15px var(--ui); }
+  @media (max-height: 520px) { .info { padding-block: 6px 8px; } .info .t { -webkit-line-clamp: 1; } }
 </style>
 </head>
 <body>
 
-<header>
+<header id="hdr">
   <div class="bar">
     <h1>Saree <em>Gallery</em></h1>
-    <span class="count" id="count"></span>
-    <span class="spacer"></span>
-    <input class="search" id="q" type="search" placeholder="search…" aria-label="Search sarees">
-    <button class="savedbtn" id="savedToggle" aria-pressed="false">Saved</button>
-    <button class="modebtn" id="modeToggle">Grid</button>
+    <button class="ibtn" id="searchBtn" aria-label="Search" aria-expanded="false"><svg class="i" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg></button>
+    <button class="ibtn" id="savedToggle" aria-label="Show saved sarees" aria-pressed="false"><svg class="i" viewBox="0 0 24 24"><path d="M12 20s-7.5-4.6-7.5-10A4.3 4.3 0 0 1 12 7.4 4.3 4.3 0 0 1 19.5 10c0 5.4-7.5 10-7.5 10z"/></svg><span class="badge" id="savedN" hidden></span></button>
+    <button class="ibtn" id="modeToggle" aria-label="Switch to grid view"><svg class="i" viewBox="0 0 24 24"><rect x="4" y="4" width="6.5" height="6.5" rx="1"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="1"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="1"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1"/></svg></button>
   </div>
-  <nav class="strip" id="brands" aria-label="Brands"></nav>
-  <nav class="strip fabrics" id="fabrics" aria-label="Fabrics"></nav>
+  <div class="searchrow" id="searchRow" hidden><input id="q" type="search" placeholder="Search name, store or material" aria-label="Search sarees" autocomplete="off"></div>
+  <div class="frow">
+    <button class="fbtn" data-facet="fabric" aria-expanded="false" aria-controls="panel">Material <span class="n"></span><svg class="i" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button>
+    <button class="fbtn" data-facet="brand" aria-expanded="false" aria-controls="panel">Store <span class="n"></span><svg class="i" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button>
+    <span class="count" id="count"></span>
+  </div>
 </header>
+<div class="dim" id="dim" hidden></div>
+<div class="panel" id="panel" role="dialog" aria-label="Filter" hidden>
+  <div class="head"><span class="caps" id="panelTitle">Material</span><button id="panelClear">Clear</button></div>
+  <div class="opts" id="opts"></div>
+  <button class="cta" id="panelApply">Show sarees</button>
+</div>
 
 <main>
   <div class="gallery" id="gallery"></div>
   <div class="empty" id="empty" hidden></div>
   <div id="sentinel" aria-hidden="true" style="height:1px"></div>
 </main>
-
 <div id="feed" aria-label="Saree feed"></div>
 <footer id="foot"></footer>
 
@@ -264,18 +262,27 @@
 <script>
 (() => {
   const $ = s => document.querySelector(s);
-  const state = { items: [], brands: [], brand: 'all', fabric: 'all', q: '', savedOnly: false,
-                  saved: new Set(), open: null, details: null, hidden: new Set(), mode: 'feed' };
+  const IC = {
+    heart: '<svg class="i" viewBox="0 0 24 24"><path d="M12 20s-7.5-4.6-7.5-10A4.3 4.3 0 0 1 12 7.4 4.3 4.3 0 0 1 19.5 10c0 5.4-7.5 10-7.5 10z"/></svg>',
+    heartF: '<svg class="i fillme" viewBox="0 0 24 24"><path d="M12 20s-7.5-4.6-7.5-10A4.3 4.3 0 0 1 12 7.4 4.3 4.3 0 0 1 19.5 10c0 5.4-7.5 10-7.5 10z"/></svg>',
+    grid: '<svg class="i" viewBox="0 0 24 24"><rect x="4" y="4" width="6.5" height="6.5" rx="1"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="1"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="1"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1"/></svg>',
+    feed: '<svg class="i" viewBox="0 0 24 24"><rect x="5.5" y="3.5" width="13" height="17" rx="2"/><path d="M9 17h6"/></svg>',
+    x: '<svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>',
+  };
+  const state = { items: [], brands: [], fabricSel: new Set(), brandSel: new Set(), q: '', savedOnly: false,
+                  saved: new Set(), open: null, details: null, hidden: new Set(), mode: 'feed', facet: null, pending: null };
   try { state.saved = new Set(JSON.parse(localStorage.getItem('saree.saved') || '[]')); } catch {}
   try { state.hidden = new Set(JSON.parse(localStorage.getItem('saree.hidden') || '[]')); } catch {}
   try { state.mode = localStorage.getItem('saree.mode') === 'grid' ? 'grid' : 'feed'; } catch {}
   const persist = () => { try {
     localStorage.setItem('saree.saved', JSON.stringify([...state.saved]));
     localStorage.setItem('saree.hidden', JSON.stringify([...state.hidden]));
-  } catch {} };
+  } catch {} updateSavedBadge(); };
   const brandName = k => (state.brands.find(b => b.key === k) || {}).name || k;
   const fmtPrice = it => it.price == null ? '' :
     new Intl.NumberFormat('en-IN', { style: 'currency', currency: it.currency || 'INR', maximumFractionDigits: 0 }).format(it.price);
+  const fmtN = n => n.toLocaleString('en-IN');
+  const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
   // Shopify's CDN resizes on request; ask for roughly what the screen needs instead of the original upload.
   const sized = (url, w) => /\/\/cdn\.shopify\.com\//.test(url) ? url + (url.includes('?') ? '&' : '?') + 'width=' + w : url;
   const srcset = url => /\/\/cdn\.shopify\.com\//.test(url) ? [360, 540, 720].map(w => `${sized(url, w)} ${w}w`).join(', ') : '';
@@ -290,34 +297,84 @@
     return a;
   };
 
-  function filtered() {
-    const q = state.q.trim().toLowerCase();
-    return state.items.filter(it =>
-      (state.brand === 'all' || it.brand === state.brand) &&
-      (state.fabric === 'all' || it.fabric.includes(state.fabric)) &&
+  // ---- filtering: any selected material (OR) within any selected store (OR)
+  function matches(it, sel = {}) {
+    const fab = sel.fabric || state.fabricSel, br = sel.brand || state.brandSel, q = state.q.trim().toLowerCase();
+    return (!br.size || br.has(it.brand)) &&
+      (!fab.size || it.fabric.some(f => fab.has(f))) &&
       (!state.savedOnly || state.saved.has(it.id)) &&
-      (!q || (it._s || (it._s = searchText(it))).includes(q))
-    );
+      (!q || (it._s || (it._s = searchText(it))).includes(q));
+  }
+  const filtered = () => state.items.filter(it => matches(it));
+
+  function updateHeader(n) {
+    $('#count').textContent = `${fmtN(n)} saree${n === 1 ? '' : 's'}`;
+    document.querySelectorAll('.fbtn').forEach(b => {
+      const k = (b.dataset.facet === 'fabric' ? state.fabricSel : state.brandSel).size;
+      b.querySelector('.n').textContent = k || '';
+      b.classList.toggle('active', k > 0);
+    });
+  }
+  function updateSavedBadge() {
+    const b = $('#savedN'); b.textContent = state.saved.size; b.hidden = !state.saved.size;
+    $('#savedToggle').innerHTML = (state.savedOnly ? IC.heartF : IC.heart) + b.outerHTML;
   }
 
-  function renderStrips() {
-    const counts = {};
-    state.items.forEach(it => counts[it.brand] = (counts[it.brand] || 0) + 1);
-    const active = state.brands.filter(b => counts[b.key]);
-    $('#brands').innerHTML =
-      `<button class="chip" data-b="all" aria-pressed="${state.brand==='all'}">All<small>${state.items.length}</small></button>` +
-      active.map(b => `<button class="chip" data-b="${b.key}" aria-pressed="${state.brand===b.key}">${esc(b.name)}<small>${counts[b.key]}</small></button>`).join('');
-    const fc = {};
-    state.items.forEach(it => it.fabric.forEach(f => fc[f] = (fc[f] || 0) + 1));
-    const top = Object.entries(fc).sort((a, b) => b[1] - a[1]).slice(0, 14);
-    $('#fabrics').innerHTML = top.length ?
-      `<button class="chip" data-f="all" aria-pressed="${state.fabric==='all'}">any fabric</button>` +
-      top.map(([f, n]) => `<button class="chip" data-f="${f}" aria-pressed="${state.fabric===f}">${f}<small>${n}</small></button>`).join('') : '';
+  // ---- Material / Store dropdown
+  const facetOptions = facet => {
+    if (facet === 'brand') return state.brands.filter(b => b.count).map(b => [b.key, b.name]);
+    const fc = {}; state.items.forEach(it => it.fabric.forEach(f => fc[f] = (fc[f] || 0) + 1));
+    return Object.entries(fc).sort((a, b) => b[1] - a[1]).slice(0, 18).map(([f]) => [f, cap(f)]);
+  };
+  function renderPanel() {
+    const facet = state.facet, pend = state.pending;
+    // counts for each option given the other facet's selection, so the numbers match what you'd get
+    const other = facet === 'fabric' ? { brand: state.brandSel } : { fabric: state.fabricSel };
+    const base = state.items.filter(it => matches(it, { ...other, [facet]: new Set() }));
+    const count = key => base.filter(it => facet === 'fabric' ? it.fabric.includes(key) : it.brand === key).length;
+    $('#panelTitle').textContent = facet === 'fabric' ? 'Material' : 'Store';
+    document.querySelector(`.fbtn[data-facet="${facet}"] .n`).textContent = pend.size || '';
+    $('#opts').innerHTML = facetOptions(facet).map(([key, label]) => {
+      const n = count(key);
+      return `<button class="opt" data-opt="${esc(key)}" aria-pressed="${pend.has(key)}" ${n || pend.has(key) ? '' : 'disabled'}>${esc(label)}<small>${fmtN(n)}</small></button>`;
+    }).join('');
+    const total = state.items.filter(it => matches(it, { ...other, [facet]: pend })).length;
+    $('#panelApply').textContent = `Show ${fmtN(total)} saree${total === 1 ? '' : 's'}`;
+    $('#panelApply').disabled = !total;
   }
+  function openPanel(facet) {
+    if (state.facet === facet) return closePanel();
+    state.facet = facet;
+    state.pending = new Set(facet === 'fabric' ? state.fabricSel : state.brandSel);
+    document.querySelectorAll('.fbtn').forEach(b => b.setAttribute('aria-expanded', b.dataset.facet === facet));
+    const top = $('#hdr').getBoundingClientRect().bottom;
+    $('#panel').style.top = (top + 4) + 'px'; $('#dim').style.top = top + 'px';
+    renderPanel();
+    $('#panel').hidden = $('#dim').hidden = false;
+  }
+  function closePanel() {
+    const was = state.facet; state.facet = null;
+    if (was) updateHeader(state.mode === 'feed' ? (state.flist || []).length : (state.list || []).length);
+    document.querySelectorAll('.fbtn').forEach(b => b.setAttribute('aria-expanded', 'false'));
+    $('#panel').hidden = $('#dim').hidden = true;
+  }
+  function applyPanel() {
+    if (state.facet === 'fabric') state.fabricSel = state.pending; else state.brandSel = state.pending;
+    closePanel(); render();
+  }
+  document.querySelectorAll('.fbtn').forEach(b => b.addEventListener('click', () => openPanel(b.dataset.facet)));
+  $('#opts').addEventListener('click', e => {
+    const o = e.target.closest('[data-opt]'); if (!o) return;
+    const k = o.dataset.opt; state.pending.has(k) ? state.pending.delete(k) : state.pending.add(k); renderPanel();
+  });
+  $('#panelClear').addEventListener('click', () => { state.pending.clear(); renderPanel(); });
+  $('#panelApply').addEventListener('click', applyPanel);
+  $('#dim').addEventListener('click', closePanel);
 
+  // ---- grid
   function renderGallery() {
     const list = filtered();
-    $('#count').textContent = list.length ? `${list.length} sarees` : '';
+    updateHeader(list.length);
     const g = $('#gallery'), e = $('#empty');
     if (!state.items.length) {
       g.innerHTML = ''; e.hidden = false;
@@ -326,7 +383,7 @@
     }
     if (!list.length) {
       g.innerHTML = ''; e.hidden = false;
-      e.textContent = state.savedOnly ? 'Nothing saved yet. Open a saree and tap Save.' : 'Nothing matches those filters.';
+      e.textContent = state.savedOnly ? 'Nothing saved yet. Tap ♥ on a saree to save it.' : 'Nothing matches those filters.';
       return;
     }
     e.hidden = true;
@@ -334,25 +391,25 @@
     g.innerHTML = '';
     appendBatch();
   }
-
   const BATCH = 60;
   const tileHTML = it => `
       <button class="tile${it.available ? '' : ' sold'}" data-id="${it.id}">
         <img src="${esc(it.thumb || sized(it.img, 540))}" srcset="${esc(it.thumb ? '' : srcset(it.img))}"
              sizes="(min-width: 1300px) 20vw, (min-width: 960px) 25vw, (min-width: 640px) 33vw, 50vw" alt="" loading="lazy" decoding="async">
         <div class="meta">
-          <div class="brand">${esc(brandName(it.brand))}</div>
+          <div class="brand caps">${esc(brandName(it.brand))}</div>
           <div class="title">${esc(it.title)}${state.saved.has(it.id) ? '<span class="saved-mark">●</span>' : ''}</div>
           <div class="price">${fmtPrice(it)}</div>
         </div>
       </button>`;
   function appendBatch() {
-    if (!state.list || state.shown >= state.list.length) return;
+    if (state.mode !== 'grid' || !state.list || state.shown >= state.list.length) return;
     const next = state.list.slice(state.shown, state.shown + BATCH);
     $('#gallery').insertAdjacentHTML('beforeend', next.map(tileHTML).join(''));
     state.shown += next.length;
   }
 
+  // ---- detail sheet
   function similarTo(it, n = 8) {
     const score = o => {
       if (o.id === it.id) return -1;
@@ -366,7 +423,6 @@
     };
     return state.items.map(o => [score(o), o]).filter(x => x[0] > 0).sort((a, b) => b[0] - a[0]).slice(0, n).map(x => x[1]);
   }
-
   function openItem(id) {
     const it = state.items.find(x => x.id === id); if (!it) return;
     state.open = id;
@@ -396,77 +452,90 @@
     state.open = null;
     $('#sheet').classList.remove('open'); $('#sheet').setAttribute('aria-hidden', 'true');
     $('#scrim').classList.remove('open');
-    document.body.style.overflow = '';
+    if (state.mode !== 'feed') document.body.style.overflow = '';
+  }
+  function toggleSave(id) {
+    state.saved.has(id) ? state.saved.delete(id) : state.saved.add(id);
+    persist(); syncSave(id);
+  }
+  function syncSave(id) {
+    const on = state.saved.has(id);
+    const b = document.querySelector(`.slide[data-sid="${CSS.escape(id)}"] [data-save]`);
+    if (b) { b.setAttribute('aria-pressed', on); b.innerHTML = on ? IC.heartF : IC.heart; }
+    const t = document.querySelector(`.tile[data-id="${CSS.escape(id)}"] .title`);
+    if (t) { const m = t.querySelector('.saved-mark'); if (on && !m) t.insertAdjacentHTML('beforeend', '<span class="saved-mark">●</span>'); else if (!on && m) m.remove(); }
   }
 
-  // ---- events
   document.addEventListener('click', e => {
-    const chipB = e.target.closest('[data-b]'); if (chipB) { state.brand = chipB.dataset.b; renderStrips(); render(); return; }
-    const chipF = e.target.closest('[data-f]'); if (chipF) { state.fabric = chipF.dataset.f; renderStrips(); render(); return; }
-    const tile = e.target.closest('[data-id]'); if (tile) { openItem(tile.dataset.id); return; }
     if (e.target.id === 'saveBtn') {
-      state.saved.has(state.open) ? state.saved.delete(state.open) : state.saved.add(state.open);
-      persist(); openItem(state.open);
-      const t = document.querySelector(`.tile[data-id="${CSS.escape(state.open)}"] .title`);
-      if (t) { const m = t.querySelector('.saved-mark'); if (state.saved.has(state.open)) { if (!m) t.insertAdjacentHTML('beforeend', '<span class="saved-mark">●</span>'); } else if (m) m.remove(); }
-      syncFeedSave(state.open);
+      toggleSave(state.open); openItem(state.open);
       if (state.savedOnly) render();
       return;
     }
-    if (e.target.id === 'close' || e.target.id === 'scrim') closeSheet();
+    if (e.target.id === 'close' || e.target.id === 'scrim') { closeSheet(); return; }
+    const tile = e.target.closest('.tile[data-id], .similar [data-id]'); if (tile) openItem(tile.dataset.id);
   });
-  $('#q').addEventListener('input', e => { state.q = e.target.value; render(); });
-  $('#savedToggle').addEventListener('click', e => {
-    state.savedOnly = !state.savedOnly; e.target.setAttribute('aria-pressed', state.savedOnly); render();
+  let qTimer;
+  $('#q').addEventListener('input', e => { clearTimeout(qTimer); qTimer = setTimeout(() => { state.q = e.target.value; render(); }, 180); });
+  $('#searchBtn').addEventListener('click', () => {
+    const row = $('#searchRow'), show = row.hidden;
+    row.hidden = !show; $('#searchBtn').setAttribute('aria-expanded', show);
+    if (show) $('#q').focus(); else if (state.q) { $('#q').value = ''; state.q = ''; render(); }
+    closePanel();
   });
-  document.addEventListener('keydown', e => { if (e.key === 'Escape' && state.open) closeSheet(); });
+  $('#savedToggle').addEventListener('click', () => {
+    state.savedOnly = !state.savedOnly; $('#savedToggle').setAttribute('aria-pressed', state.savedOnly);
+    updateSavedBadge(); render();
+  });
+  document.addEventListener('keydown', e => { if (e.key !== 'Escape') return; if (state.facet) closePanel(); else if (state.open) closeSheet(); });
 
-  // ---- feed ----------------------------------------------------------------------------------
+  // ---- views
   const render = () => state.mode === 'feed' ? renderFeed() : renderGallery();
   function setMode(m) {
     state.mode = m; try { localStorage.setItem('saree.mode', m); } catch {}
     document.body.classList.toggle('feed-mode', m === 'feed');
-    $('#modeToggle').textContent = m === 'feed' ? 'Grid' : 'Feed';
+    document.body.style.overflow = '';
+    $('#modeToggle').innerHTML = m === 'feed' ? IC.grid : IC.feed;
     $('#modeToggle').setAttribute('aria-label', m === 'feed' ? 'Switch to grid view' : 'Switch to feed view');
-    if (m === 'grid') { $('#feed').innerHTML = ''; feedIO.disconnect(); }
-    render();
+    if (m === 'grid') { $('#feed').innerHTML = ''; feedIO.disconnect(); } else $('#gallery').innerHTML = '';
+    closePanel(); render();
   }
   $('#modeToggle').addEventListener('click', () => setMode(state.mode === 'feed' ? 'grid' : 'feed'));
 
+  // ---- feed
   const FEED_BATCH = 12;
   const feedSrcset = u => /\/\/cdn\.shopify\.com\//.test(u) ? [720, 1080, 1440].map(w => `${sized(u, w)} ${w}w`).join(', ') : '';
-  const photoHTML = (u, eager) => `<img src="${esc(sized(u, 1080))}" srcset="${esc(feedSrcset(u))}" sizes="100vw" alt=""
+  const photoHTML = (u, eager) => `<img src="${esc(sized(u, 1080))}" srcset="${esc(feedSrcset(u))}" sizes="(min-width: 560px) 560px, 100vw" alt=""
       ${eager ? '' : 'loading="lazy"'} decoding="async" draggable="false">`;
   function renderFeed() {
     const list = filtered().filter(it => !state.hidden.has(it.id));
-    $('#count').textContent = list.length ? `${list.length} sarees` : '';
+    updateHeader(list.length);
     feedIO.disconnect();
     const f = $('#feed'); f.innerHTML = ''; f.scrollTop = 0;
     state.flist = list; state.fshown = 0;
     if (!list.length) {
-      f.innerHTML = `<div class="feed-end"><div>${state.savedOnly ? 'Nothing saved yet. Tap ♥ or double-tap a photo to save.' : 'Nothing matches those filters.'}</div>${hiddenNote()}</div>`;
+      f.innerHTML = `<div class="feed-end"><div>${state.savedOnly ? 'Nothing saved yet. Tap ♥ or double-tap a photo to save it.' : 'Nothing matches those filters.'}</div>${hiddenNote()}</div>`;
       return;
     }
     appendFeed();
   }
-  const hiddenNote = () => state.hidden.size ? `<div><button data-unhide>Bring back ${state.hidden.size} hidden</button></div>` : '';
+  const hiddenNote = () => state.hidden.size ? `<div><button data-unhide>Bring back ${fmtN(state.hidden.size)} hidden</button></div>` : '';
   function slideHTML(it) {
     const saved = state.saved.has(it.id);
     return `<section class="slide" data-sid="${esc(it.id)}">
-        <div class="strip-x">${photoHTML(it.img, state.fshown < 2)}</div>
-        <div class="dots"></div><div class="pos" hidden></div>
-        <div class="shade"></div><div class="burst" aria-hidden="true">♥</div>
-        <div class="meta">
-          <div class="b">${esc(brandName(it.brand))}</div>
-          <button class="t" data-info>${esc(it.title)}</button>
-          <div class="p"><span>${fmtPrice(it)}${it.available ? '' : ' · sold out'}</span>${it.fabric.map(x => `<span class="f">${esc(x)}</span>`).join('')}</div>
-          <div class="d"></div>
-          <a href="${esc(it.url)}" target="_blank" rel="noopener">Open on ${esc(brandName(it.brand))}</a>
+        <div class="card">
+          <div class="strip-x">${photoHTML(it.img, state.fshown < 2)}</div>
+          <div class="seg"></div><div class="pos" hidden></div>
+          <div class="burst" aria-hidden="true">${IC.heartF}</div>
         </div>
-        <div class="rail">
-          <button data-save aria-pressed="${saved}" aria-label="Save"><span class="ico">♥</span>${saved ? 'Saved' : 'Save'}</button>
-          <button data-hide aria-label="Hide this saree"><span class="ico">✕</span>Hide</button>
-          <button data-info aria-label="Details and similar"><span class="ico">i</span>More</button>
+        <div class="info">
+          <div class="txt">
+            <span class="brand caps">${esc(brandName(it.brand))}</span>
+            <button class="t" data-info>${esc(it.title)}</button>
+            <span class="p">${fmtPrice(it)}${it.available ? '' : ' · sold out'}${it.fabric.length ? ' · ' + esc(it.fabric.slice(0, 3).join(', ')) : ''}</span>
+          </div>
+          <button class="round" data-hide aria-label="Hide this saree">${IC.x}</button>
+          <button class="round save" data-save aria-pressed="${saved}" aria-label="Save">${saved ? IC.heartF : IC.heart}</button>
         </div>
       </section>`;
   }
@@ -476,7 +545,7 @@
     const html = next.map(it => { const h = slideHTML(it); state.fshown++; return h; }).join('');
     f.insertAdjacentHTML('beforeend', html);
     if (state.fshown >= state.flist.length)
-      f.insertAdjacentHTML('beforeend', `<div class="feed-end"><div>That's all ${state.flist.length}.</div>${hiddenNote()}</div>`);
+      f.insertAdjacentHTML('beforeend', `<div class="feed-end"><div>That's all ${fmtN(state.flist.length)}.</div>${hiddenNote()}</div>`);
     f.querySelectorAll('.slide:not([data-watched])').forEach(el => { el.dataset.watched = 1; feedIO.observe(el); });
   }
   // Load the next batch as you near the end, and fill in each saree's photos when it comes on screen.
@@ -492,23 +561,22 @@
   function hydrate(slide) {
     const it = state.items.find(x => x.id === slide.dataset.sid); if (!it) return;
     const d = detail(it);
-    if (d && d.description && !slide.querySelector('.d').textContent) slide.querySelector('.d').textContent = d.description;
     if (slide.dataset.hydrated === (d ? 'full' : 'min')) return;
     slide.dataset.hydrated = d ? 'full' : 'min';
     const imgs = d && d.images && d.images.length ? d.images : [it.img];
-    const strip = slide.querySelector('.strip-x');
+    const strip = slide.querySelector('.strip-x'), seg = slide.querySelector('.seg'), pos = slide.querySelector('.pos');
     const n = imgs.length;
-    if (n < 2) { slide.querySelector('.dots').innerHTML = ''; slide.querySelector('.pos').hidden = true; return; }
+    if (n < 2) { seg.innerHTML = ''; pos.hidden = true; return; }
     strip.innerHTML = [imgs[n - 1], ...imgs, imgs[0]].map(u => photoHTML(u, false)).join('');
-    slide.querySelector('.dots').innerHTML = n <= 10 ? imgs.map(() => '<i></i>').join('') : '';
-    slide.querySelector('.pos').hidden = n <= 10;
+    seg.innerHTML = n <= 10 ? imgs.map(() => '<i></i>').join('') : '';
+    pos.hidden = n <= 10;
     const w = () => strip.clientWidth || 1;
     strip.scrollTo({ left: w(), behavior: 'instant' });
     const mark = () => {
       const i = Math.round(strip.scrollLeft / w());          // 0 and n+1 are the copies
       const real = i === 0 ? n : i === n + 1 ? 1 : i;
-      slide.querySelectorAll('.dots i').forEach((dot, k) => dot.classList.toggle('on', k === real - 1));
-      slide.querySelector('.pos').textContent = `${real} / ${n}`;
+      seg.querySelectorAll('i').forEach((s, k) => s.classList.toggle('on', k === real - 1));
+      pos.textContent = `${real} / ${n}`;
       return { i, real };
     };
     let t;
@@ -525,57 +593,54 @@
   addEventListener('resize', () => document.querySelectorAll('.slide[data-hydrated] .strip-x').forEach(st => {
     const i = Math.round(st.scrollLeft / (st._w || st.clientWidth || 1)); st._w = st.clientWidth; st.scrollTo({ left: i * st.clientWidth, behavior: 'instant' });
   }));
-  function syncFeedSave(id) {
-    const b = document.querySelector(`.slide[data-sid="${CSS.escape(id)}"] [data-save]`); if (!b) return;
-    const on = state.saved.has(id); b.setAttribute('aria-pressed', on); b.lastChild.textContent = on ? 'Saved' : 'Save';
-  }
   let lastTap = 0;
   $('#feed').addEventListener('click', e => {
     if (e.target.closest('[data-unhide]')) { state.hidden.clear(); persist(); renderFeed(); return; }
     const slide = e.target.closest('.slide'); if (!slide) return;
     const id = slide.dataset.sid;
-    if (e.target.closest('[data-save]')) { state.saved.has(id) ? state.saved.delete(id) : state.saved.add(id); persist(); syncFeedSave(id); return; }
+    if (e.target.closest('[data-save]')) { toggleSave(id); return; }
     if (e.target.closest('[data-info]')) { openItem(id); return; }
     if (e.target.closest('[data-hide]')) {
       state.hidden.add(id); persist();
       const next = slide.nextElementSibling;
       slide.style.transition = 'opacity .25s'; slide.style.opacity = 0;
       setTimeout(() => { slide.remove(); state.flist = state.flist.filter(x => x.id !== id); state.fshown--;
-        $('#count').textContent = `${state.flist.length} sarees`; if (next) hydrate(next); }, 250);
+        updateHeader(state.flist.length); if (next) hydrate(next); }, 250);
       return;
     }
-    if (e.target.closest('a')) return;
+    if (!e.target.closest('.card')) return;
     const now = Date.now();
     if (now - lastTap < 320) {
-      state.saved.add(id); persist(); syncFeedSave(id);
+      if (!state.saved.has(id)) toggleSave(id);
       const b = slide.querySelector('.burst'); b.classList.remove('go'); void b.offsetWidth; b.classList.add('go');
     }
     lastTap = now;
   });
 
   // Tall phones (20:9 to 22:9) are much narrower than most product photos. Show the whole photo,
-  // and only fill the screen when that would crop less than 12% of it.
+  // and only fill the card when that would crop less than 12% of it.
   const fitPhoto = img => {
     if (!img.naturalWidth) return;
     const box = img.clientWidth / (img.clientHeight || 1), pic = img.naturalWidth / img.naturalHeight;
     img.classList.toggle('fill', Math.min(box, pic) / Math.max(box, pic) > 0.88);
   };
   $('#feed').addEventListener('load', e => { if (e.target.tagName === 'IMG') fitPhoto(e.target); }, true);
-  addEventListener('resize', () => document.querySelectorAll('.strip-x img').forEach(fitPhoto));
+  addEventListener('resize', () => { document.querySelectorAll('.strip-x img').forEach(fitPhoto); if (state.facet) { const f = state.facet; closePanel(); openPanel(f); } });
 
   // Installable app: offline copy of the page and catalog.
   if ('serviceWorker' in navigator) addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
 
-  // ---- infinite scroll
+  // ---- infinite scroll (grid)
   new IntersectionObserver(es => { if (es.some(x => x.isIntersecting)) appendBatch(); }, { rootMargin: '1200px 0px' })
     .observe(document.getElementById('sentinel'));
 
   // ---- load: the small index first so the wall shows quickly, then details in the background.
   // no-cache = revalidate with the server, so an unchanged file comes back as a tiny "not modified".
+  updateSavedBadge();
   fetch('data/index.json', { cache: 'no-cache' }).then(r => r.json()).then(cat => {
     state.brands = cat.brands || [];
     state.items = shuffleSeeded((cat.items || []).filter(i => i.img));
-    renderStrips(); setMode(state.mode);
+    setMode(state.mode);
     if (cat.generated_at) {
       const d = new Date(cat.generated_at);
       const skipped = state.brands.filter(b => !b.count).map(b => b.name);

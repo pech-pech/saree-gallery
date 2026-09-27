@@ -18,21 +18,20 @@ Personal, non-commercial gallery of sarees from designer Indian labels. Static s
 - Installable app (PWA): `manifest.webmanifest`, `icons/`, `sw.js`. The service worker serves the page and
   `data/index.json` network-first (offline fallback) and `data/details.json?v=` cache-first; it never caches brand
   photos. Bump `CACHE` in sw.js if the cached file list changes.
-- Feed photos use `object-fit: contain` pinned to the top, switching to cover only when that crops <12%, so
-  20:9–22:9 phones show the whole photo with the spare height below it (under the text).
+- Feed photos use `object-fit: contain` inside the card, switching to cover only when that crops <12%, so
+  20:9–22:9 phones show the whole photo.
 - `.github/workflows/refresh.yml` — daily 02:30 UTC, manual dispatch, and on pushes touching
   `sources.json` or `scripts/**`. Has a concurrency group and `git pull --rebase` before push.
-- `index.html` — single-file gallery. Two views, toggled in the header and remembered (default Feed):
-  Feed = one saree per screen, swipe up for the next, swipe sideways through all its photos (loops),
-  ♥ / double-tap saves (same Saved list), ✕ hides (localStorage `saree.hidden`), "More" opens the detail sheet.
-  Grid = (Newsreader serif, indigo accent, paper background).
-  Masonry columns, brand + fabric filter strips, search, Saved (localStorage), detail sheet
-  (bottom sheet on mobile, side panel ≥900px), "Similar drapes" scored by shared fabric, price band,
-  register, cross-brand preference. Renders in batches of 60 via IntersectionObserver.
-  Items link out to the brand's product page; nothing is re-hosted.
+- `index.html` — single-file gallery (design "A: clean card", chosen by the owner). Header: wordmark, search /
+  Saved (badge) / view-toggle icons, then two dropdown buttons, **Material** and **Store**, that open a panel with a
+  2-column grid of options + live counts and a "Show N sarees" button (multi-select; OR within a facet, AND across).
+  Two views, remembered in localStorage `saree.mode` (default Feed):
+  Feed = one saree per screen as a rounded photo card with brand/title/price and ✕ (hide) / ♥ (save) below it;
+  swipe up for the next, sideways through all photos (loops); double-tap saves; title opens the detail sheet.
+  Grid = masonry tiles in batches of 60. Detail sheet (bottom on mobile, side ≥900px) has "Similar drapes".
   Loads index.json first (revalidated with `cache: 'no-cache'`), then details.json?v=<generated_at> in the
   background; search picks up tags once details arrive. Shopify images are requested resized via the CDN's
-  `width=` param (srcset 360/540/720 for tiles, 1080 in the sheet); WooCommerce tiles use the Store API thumbnail.
+  `width=` param; WooCommerce tiles use the Store API thumbnail. Items link out; nothing is re-hosted.
 
 ## Current shops (9)
 Anavila (woocommerce, main), House of Masaba (shopify, main), Raw Mango, Ekaya, Akaaro, Suta,
