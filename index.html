@@ -73,6 +73,8 @@
     border: 0; border-bottom: 1px solid var(--line); background: none;
     font: inherit; font-size: 16px; color: var(--ink); padding: 4px 0; width: clamp(90px, 22vw, 200px); min-width: 0;
   }
+  .search { min-width: 84px; }
+  @media (max-width: 480px) { .bar { gap: 12px; } .bar .count { display: none; } }
   .search::placeholder { color: var(--ink-3); font-style: italic; }
   .search:focus { outline: none; border-bottom-color: var(--indigo); }
   .savedbtn { color: var(--ink-2); font-size: 15px; white-space: nowrap; }
@@ -170,6 +172,53 @@
   .similar img { width: 100%; aspect-ratio: 4/5; object-fit: cover; display: block; background: var(--indigo-soft); border-radius: var(--radius); }
   .similar .t { font-size: 13px; color: var(--ink-2); line-height: 1.25; margin-top: 4px; }
 
+  /* ---------- feed: one saree per screen, photos swipe sideways ---------- */
+  .modebtn { color: var(--ink-2); font-size: 15px; white-space: nowrap; }
+  body.feed-mode {
+    height: calc(100dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+    display: flex; flex-direction: column; overflow: hidden;
+  }
+  body.feed-mode header { position: static; }
+  body.feed-mode main, body.feed-mode footer { display: none; }
+  #feed { display: none; }
+  body.feed-mode #feed {
+    display: block; flex: 1; min-height: 0; overflow-y: auto; scroll-snap-type: y mandatory;
+    overscroll-behavior: contain; scrollbar-width: none; background: #0f0e0b;
+  }
+  #feed::-webkit-scrollbar { display: none; }
+  .slide { height: 100%; scroll-snap-align: start; scroll-snap-stop: always; position: relative; overflow: hidden; color: #fbfaf7; }
+  .strip-x {
+    height: 100%; display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none;
+    overscroll-behavior-x: contain;
+  }
+  .strip-x::-webkit-scrollbar { display: none; }
+  .strip-x img { flex: 0 0 100%; width: 100%; height: 100%; object-fit: cover; scroll-snap-align: start; display: block; background: #1d1c16; }
+  .slide .pos {
+    position: absolute; top: 12px; right: 12px; font-size: 13px; font-variant-numeric: tabular-nums;
+    background: rgba(15,14,11,.5); padding: 2px 9px; border-radius: 999px; pointer-events: none;
+  }
+  .slide .dots { position: absolute; top: 18px; left: 50%; transform: translateX(-50%); display: flex; gap: 5px; pointer-events: none; }
+  .slide .dots i { width: 6px; height: 6px; border-radius: 50%; background: rgba(251,250,247,.45); }
+  .slide .dots i.on { background: #fbfaf7; }
+  .slide .shade { position: absolute; inset: auto 0 0 0; height: 50%; pointer-events: none;
+                  background: linear-gradient(to top, rgba(15,14,11,.85), rgba(15,14,11,0)); }
+  .slide .meta { position: absolute; left: 16px; right: 80px; bottom: 20px; display: grid; gap: 3px; }
+  .slide .meta .b { font-style: italic; color: #c9d2ec; font-size: 15px; }
+  .slide .meta .t { font-size: 22px; line-height: 1.2; text-align: left; text-wrap: balance; }
+  .slide .meta .p { color: rgba(251,250,247,.82); font-size: 15px; display: flex; flex-wrap: wrap; gap: 4px 10px; }
+  .slide .meta .p span.f { border-bottom: 1px dotted rgba(251,250,247,.5); }
+  .slide .meta .d { font-size: 15px; color: rgba(251,250,247,.85); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .slide .meta a { font-size: 15px; text-underline-offset: 3px; width: fit-content; }
+  .rail { position: absolute; right: 10px; bottom: 22px; display: grid; gap: 16px; justify-items: center; font-size: 12px; }
+  .rail button { display: grid; justify-items: center; gap: 2px; color: #fbfaf7; }
+  .rail .ico { width: 48px; height: 48px; border-radius: 50%; background: rgba(15,14,11,.45); display: grid; place-items: center; font-size: 22px; }
+  .rail button[aria-pressed="true"] .ico { background: #2f3b5c; }
+  .burst { position: absolute; left: 50%; top: 42%; font-size: 96px; transform: translate(-50%,-50%) scale(.4); opacity: 0; pointer-events: none; }
+  .burst.go { animation: burst .7s ease-out; }
+  @keyframes burst { 30% { opacity: .95; transform: translate(-50%,-50%) scale(1.05); } 100% { opacity: 0; transform: translate(-50%,-50%) scale(1.2); } }
+  .feed-end { height: 100%; scroll-snap-align: start; display: grid; place-content: center; gap: 14px; text-align: center; color: #d8d3c8; padding: 0 24px; }
+  .feed-end button { color: #fbfaf7; border: 1px solid #fbfaf7; border-radius: 999px; padding: 8px 18px; }
+
   footer { color: var(--ink-3); font-size: 14px; text-align: center; padding: 30px 20px; }
 </style>
 </head>
@@ -182,6 +231,7 @@
     <span class="spacer"></span>
     <input class="search" id="q" type="search" placeholder="search…" aria-label="Search sarees">
     <button class="savedbtn" id="savedToggle" aria-pressed="false">Saved</button>
+    <button class="modebtn" id="modeToggle">Grid</button>
   </div>
   <nav class="strip" id="brands" aria-label="Brands"></nav>
   <nav class="strip fabrics" id="fabrics" aria-label="Fabrics"></nav>
@@ -193,6 +243,7 @@
   <div id="sentinel" aria-hidden="true" style="height:1px"></div>
 </main>
 
+<div id="feed" aria-label="Saree feed"></div>
 <footer id="foot"></footer>
 
 <div class="scrim" id="scrim"></div>
@@ -205,9 +256,14 @@
 (() => {
   const $ = s => document.querySelector(s);
   const state = { items: [], brands: [], brand: 'all', fabric: 'all', q: '', savedOnly: false,
-                  saved: new Set(), open: null, details: null };
+                  saved: new Set(), open: null, details: null, hidden: new Set(), mode: 'feed' };
   try { state.saved = new Set(JSON.parse(localStorage.getItem('saree.saved') || '[]')); } catch {}
-  const persist = () => { try { localStorage.setItem('saree.saved', JSON.stringify([...state.saved])); } catch {} };
+  try { state.hidden = new Set(JSON.parse(localStorage.getItem('saree.hidden') || '[]')); } catch {}
+  try { state.mode = localStorage.getItem('saree.mode') === 'grid' ? 'grid' : 'feed'; } catch {}
+  const persist = () => { try {
+    localStorage.setItem('saree.saved', JSON.stringify([...state.saved]));
+    localStorage.setItem('saree.hidden', JSON.stringify([...state.hidden]));
+  } catch {} };
   const brandName = k => (state.brands.find(b => b.key === k) || {}).name || k;
   const fmtPrice = it => it.price == null ? '' :
     new Intl.NumberFormat('en-IN', { style: 'currency', currency: it.currency || 'INR', maximumFractionDigits: 0 }).format(it.price);
@@ -336,24 +392,157 @@
 
   // ---- events
   document.addEventListener('click', e => {
-    const chipB = e.target.closest('[data-b]'); if (chipB) { state.brand = chipB.dataset.b; renderStrips(); renderGallery(); return; }
-    const chipF = e.target.closest('[data-f]'); if (chipF) { state.fabric = chipF.dataset.f; renderStrips(); renderGallery(); return; }
+    const chipB = e.target.closest('[data-b]'); if (chipB) { state.brand = chipB.dataset.b; renderStrips(); render(); return; }
+    const chipF = e.target.closest('[data-f]'); if (chipF) { state.fabric = chipF.dataset.f; renderStrips(); render(); return; }
     const tile = e.target.closest('[data-id]'); if (tile) { openItem(tile.dataset.id); return; }
     if (e.target.id === 'saveBtn') {
       state.saved.has(state.open) ? state.saved.delete(state.open) : state.saved.add(state.open);
       persist(); openItem(state.open);
       const t = document.querySelector(`.tile[data-id="${CSS.escape(state.open)}"] .title`);
       if (t) { const m = t.querySelector('.saved-mark'); if (state.saved.has(state.open)) { if (!m) t.insertAdjacentHTML('beforeend', '<span class="saved-mark">●</span>'); } else if (m) m.remove(); }
-      if (state.savedOnly) renderGallery();
+      syncFeedSave(state.open);
+      if (state.savedOnly) render();
       return;
     }
     if (e.target.id === 'close' || e.target.id === 'scrim') closeSheet();
   });
-  $('#q').addEventListener('input', e => { state.q = e.target.value; renderGallery(); });
+  $('#q').addEventListener('input', e => { state.q = e.target.value; render(); });
   $('#savedToggle').addEventListener('click', e => {
-    state.savedOnly = !state.savedOnly; e.target.setAttribute('aria-pressed', state.savedOnly); renderGallery();
+    state.savedOnly = !state.savedOnly; e.target.setAttribute('aria-pressed', state.savedOnly); render();
   });
   document.addEventListener('keydown', e => { if (e.key === 'Escape' && state.open) closeSheet(); });
+
+  // ---- feed ----------------------------------------------------------------------------------
+  const render = () => state.mode === 'feed' ? renderFeed() : renderGallery();
+  function setMode(m) {
+    state.mode = m; try { localStorage.setItem('saree.mode', m); } catch {}
+    document.body.classList.toggle('feed-mode', m === 'feed');
+    $('#modeToggle').textContent = m === 'feed' ? 'Grid' : 'Feed';
+    $('#modeToggle').setAttribute('aria-label', m === 'feed' ? 'Switch to grid view' : 'Switch to feed view');
+    if (m === 'grid') { $('#feed').innerHTML = ''; feedIO.disconnect(); }
+    render();
+  }
+  $('#modeToggle').addEventListener('click', () => setMode(state.mode === 'feed' ? 'grid' : 'feed'));
+
+  const FEED_BATCH = 12;
+  const feedSrcset = u => /\/\/cdn\.shopify\.com\//.test(u) ? [720, 1080, 1440].map(w => `${sized(u, w)} ${w}w`).join(', ') : '';
+  const photoHTML = (u, eager) => `<img src="${esc(sized(u, 1080))}" srcset="${esc(feedSrcset(u))}" sizes="100vw" alt=""
+      ${eager ? '' : 'loading="lazy"'} decoding="async" draggable="false">`;
+  function renderFeed() {
+    const list = filtered().filter(it => !state.hidden.has(it.id));
+    $('#count').textContent = list.length ? `${list.length} sarees` : '';
+    feedIO.disconnect();
+    const f = $('#feed'); f.innerHTML = ''; f.scrollTop = 0;
+    state.flist = list; state.fshown = 0;
+    if (!list.length) {
+      f.innerHTML = `<div class="feed-end"><div>${state.savedOnly ? 'Nothing saved yet. Tap ♥ or double-tap a photo to save.' : 'Nothing matches those filters.'}</div>${hiddenNote()}</div>`;
+      return;
+    }
+    appendFeed();
+  }
+  const hiddenNote = () => state.hidden.size ? `<div><button data-unhide>Bring back ${state.hidden.size} hidden</button></div>` : '';
+  function slideHTML(it) {
+    const saved = state.saved.has(it.id);
+    return `<section class="slide" data-sid="${esc(it.id)}">
+        <div class="strip-x">${photoHTML(it.img, state.fshown < 2)}</div>
+        <div class="dots"></div><div class="pos" hidden></div>
+        <div class="shade"></div><div class="burst" aria-hidden="true">♥</div>
+        <div class="meta">
+          <div class="b">${esc(brandName(it.brand))}</div>
+          <button class="t" data-info>${esc(it.title)}</button>
+          <div class="p"><span>${fmtPrice(it)}${it.available ? '' : ' · sold out'}</span>${it.fabric.map(x => `<span class="f">${esc(x)}</span>`).join('')}</div>
+          <div class="d"></div>
+          <a href="${esc(it.url)}" target="_blank" rel="noopener">Open on ${esc(brandName(it.brand))}</a>
+        </div>
+        <div class="rail">
+          <button data-save aria-pressed="${saved}" aria-label="Save"><span class="ico">♥</span>${saved ? 'Saved' : 'Save'}</button>
+          <button data-hide aria-label="Hide this saree"><span class="ico">✕</span>Hide</button>
+          <button data-info aria-label="Details and similar"><span class="ico">i</span>More</button>
+        </div>
+      </section>`;
+  }
+  function appendFeed() {
+    const f = $('#feed'), next = state.flist.slice(state.fshown, state.fshown + FEED_BATCH);
+    f.querySelector('.feed-end')?.remove();
+    const html = next.map(it => { const h = slideHTML(it); state.fshown++; return h; }).join('');
+    f.insertAdjacentHTML('beforeend', html);
+    if (state.fshown >= state.flist.length)
+      f.insertAdjacentHTML('beforeend', `<div class="feed-end"><div>That's all ${state.flist.length}.</div>${hiddenNote()}</div>`);
+    f.querySelectorAll('.slide:not([data-watched])').forEach(el => { el.dataset.watched = 1; feedIO.observe(el); });
+  }
+  // Load the next batch as you near the end, and fill in each saree's photos when it comes on screen.
+  const feedIO = new IntersectionObserver(es => es.forEach(e => {
+    if (!e.isIntersecting) return;
+    hydrate(e.target);
+    const slides = $('#feed').querySelectorAll('.slide');
+    if (e.target === slides[slides.length - 3] || slides.length < 3) appendFeed();
+  }), { root: document.getElementById('feed'), rootMargin: '100% 0px' });
+
+  // All photos of one saree, swiping sideways and looping: a copy of the last photo sits before the
+  // first and a copy of the first after the last; landing on a copy jumps to the real one.
+  function hydrate(slide) {
+    const it = state.items.find(x => x.id === slide.dataset.sid); if (!it) return;
+    const d = detail(it);
+    if (d && d.description && !slide.querySelector('.d').textContent) slide.querySelector('.d').textContent = d.description;
+    if (slide.dataset.hydrated === (d ? 'full' : 'min')) return;
+    slide.dataset.hydrated = d ? 'full' : 'min';
+    const imgs = d && d.images && d.images.length ? d.images : [it.img];
+    const strip = slide.querySelector('.strip-x');
+    const n = imgs.length;
+    if (n < 2) { slide.querySelector('.dots').innerHTML = ''; slide.querySelector('.pos').hidden = true; return; }
+    strip.innerHTML = [imgs[n - 1], ...imgs, imgs[0]].map(u => photoHTML(u, false)).join('');
+    slide.querySelector('.dots').innerHTML = n <= 10 ? imgs.map(() => '<i></i>').join('') : '';
+    slide.querySelector('.pos').hidden = n <= 10;
+    const w = () => strip.clientWidth || 1;
+    strip.scrollTo({ left: w(), behavior: 'instant' });
+    const mark = () => {
+      const i = Math.round(strip.scrollLeft / w());          // 0 and n+1 are the copies
+      const real = i === 0 ? n : i === n + 1 ? 1 : i;
+      slide.querySelectorAll('.dots i').forEach((dot, k) => dot.classList.toggle('on', k === real - 1));
+      slide.querySelector('.pos').textContent = `${real} / ${n}`;
+      return { i, real };
+    };
+    let t;
+    const settle = () => { const { i, real } = mark(); if (i !== real) strip.scrollTo({ left: real * w(), behavior: 'instant' }); };
+    strip.addEventListener('scroll', () => { mark(); clearTimeout(t); t = setTimeout(settle, 120); }, { passive: true });
+    if ('onscrollend' in strip) strip.addEventListener('scrollend', () => { clearTimeout(t); settle(); });
+    mark();
+  }
+  function feedDetailsArrived() {
+    if (state.mode !== 'feed') return;
+    const f = $('#feed'), top = f.getBoundingClientRect().top, h = f.clientHeight;
+    f.querySelectorAll('.slide').forEach(s => { const r = s.getBoundingClientRect(); if (r.bottom > top - h && r.top < top + 2 * h) hydrate(s); });
+  }
+  addEventListener('resize', () => document.querySelectorAll('.slide[data-hydrated] .strip-x').forEach(st => {
+    const i = Math.round(st.scrollLeft / (st._w || st.clientWidth || 1)); st._w = st.clientWidth; st.scrollTo({ left: i * st.clientWidth, behavior: 'instant' });
+  }));
+  function syncFeedSave(id) {
+    const b = document.querySelector(`.slide[data-sid="${CSS.escape(id)}"] [data-save]`); if (!b) return;
+    const on = state.saved.has(id); b.setAttribute('aria-pressed', on); b.lastChild.textContent = on ? 'Saved' : 'Save';
+  }
+  let lastTap = 0;
+  $('#feed').addEventListener('click', e => {
+    if (e.target.closest('[data-unhide]')) { state.hidden.clear(); persist(); renderFeed(); return; }
+    const slide = e.target.closest('.slide'); if (!slide) return;
+    const id = slide.dataset.sid;
+    if (e.target.closest('[data-save]')) { state.saved.has(id) ? state.saved.delete(id) : state.saved.add(id); persist(); syncFeedSave(id); return; }
+    if (e.target.closest('[data-info]')) { openItem(id); return; }
+    if (e.target.closest('[data-hide]')) {
+      state.hidden.add(id); persist();
+      const next = slide.nextElementSibling;
+      slide.style.transition = 'opacity .25s'; slide.style.opacity = 0;
+      setTimeout(() => { slide.remove(); state.flist = state.flist.filter(x => x.id !== id); state.fshown--;
+        $('#count').textContent = `${state.flist.length} sarees`; if (next) hydrate(next); }, 250);
+      return;
+    }
+    if (e.target.closest('a')) return;
+    const now = Date.now();
+    if (now - lastTap < 320) {
+      state.saved.add(id); persist(); syncFeedSave(id);
+      const b = slide.querySelector('.burst'); b.classList.remove('go'); void b.offsetWidth; b.classList.add('go');
+    }
+    lastTap = now;
+  });
 
   // ---- infinite scroll
   new IntersectionObserver(es => { if (es.some(x => x.isIntersecting)) appendBatch(); }, { rootMargin: '1200px 0px' })
@@ -364,7 +553,7 @@
   fetch('data/index.json', { cache: 'no-cache' }).then(r => r.json()).then(cat => {
     state.brands = cat.brands || [];
     state.items = shuffleSeeded((cat.items || []).filter(i => i.img));
-    renderStrips(); renderGallery();
+    renderStrips(); setMode(state.mode);
     if (cat.generated_at) {
       const d = new Date(cat.generated_at);
       const skipped = state.brands.filter(b => !b.count).map(b => b.name);
@@ -375,7 +564,8 @@
     return fetch('data/details.json?v=' + encodeURIComponent(cat.generated_at || '')).then(r => r.json()).then(det => {
       state.details = det.items || {};
       state.items.forEach(it => { delete it._s; });   // search now includes tags
-      if (state.q) renderGallery();
+      if (state.q) render();
+      feedDetailsArrived();
       if (state.open) { const top = $('#sheet').scrollTop; openItem(state.open); $('#sheet').scrollTop = top; }
       window.__ready = true;
     }).catch(() => {});                               // the gallery still works without details

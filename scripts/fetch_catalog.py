@@ -33,7 +33,7 @@ UA = "Mozilla/5.0 (personal saree gallery; polite fetcher; contact via repo)"
 TIMEOUT = 25
 MAX_PER_BRAND = 1000      # sarees kept per shop
 MAX_SCAN = 3000           # raw products scanned when a whole store must be filtered
-MAX_IMAGES = 4
+MAX_IMAGES = 20         # photos kept per saree (the feed shows them all)
 SAREE_RE = re.compile(r"\b(saree|sarees|sari|saris)\b", re.I)
 FABRIC_WORDS = [
     "linen", "khadi", "silk", "cotton", "tussar", "tissue", "organza", "chiffon",

@@ -13,11 +13,14 @@ Personal, non-commercial gallery of sarees from designer Indian labels. Static s
     /collections/sarees|saree|sari|saris, stops at the first hit, else scans /products.json and keyword-filters.
   - WooCommerce: Store API `/wp-json/wc/store/v1/products`, category query merged with a full-store scan
     (needed for Anavila: some saris sit only in collection categories).
-  - Caps: MAX_PER_BRAND=1000 kept per shop, MAX_SCAN=3000 raw scanned. Descriptions trimmed to 500 chars, 4 images.
+  - Caps: MAX_PER_BRAND=1000 kept per shop, MAX_SCAN=3000 raw scanned. Descriptions trimmed to 500 chars, up to 20 images.
   - One failing shop never fails the run; an empty run keeps the previous catalog.
 - `.github/workflows/refresh.yml` — daily 02:30 UTC, manual dispatch, and on pushes touching
   `sources.json` or `scripts/**`. Has a concurrency group and `git pull --rebase` before push.
-- `index.html` — single-file gallery (Newsreader serif, indigo accent, paper background).
+- `index.html` — single-file gallery. Two views, toggled in the header and remembered (default Feed):
+  Feed = one saree per screen, swipe up for the next, swipe sideways through all its photos (loops),
+  ♥ / double-tap saves (same Saved list), ✕ hides (localStorage `saree.hidden`), "More" opens the detail sheet.
+  Grid = (Newsreader serif, indigo accent, paper background).
   Masonry columns, brand + fabric filter strips, search, Saved (localStorage), detail sheet
   (bottom sheet on mobile, side panel ≥900px), "Similar drapes" scored by shared fabric, price band,
   register, cross-brand preference. Renders in batches of 60 via IntersectionObserver.
