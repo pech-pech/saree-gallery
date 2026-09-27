@@ -26,8 +26,9 @@ OUT_FILE = ROOT / "data" / "catalog.json"
 
 UA = "Mozilla/5.0 (personal saree gallery; polite fetcher; contact via repo)"
 TIMEOUT = 25
-MAX_PER_BRAND = 400
-MAX_IMAGES = 5
+MAX_PER_BRAND = 1000      # sarees kept per shop
+MAX_SCAN = 3000           # raw products scanned when a whole store must be filtered
+MAX_IMAGES = 4
 SAREE_RE = re.compile(r"\b(saree|sarees|sari|saris)\b", re.I)
 FABRIC_WORDS = [
     "linen", "khadi", "silk", "cotton", "tussar", "tissue", "organza", "chiffon",
@@ -91,7 +92,7 @@ def is_saree(*texts):
 
 
 # ---------------------------------------------------------------- Shopify ----
-def shopify_products(base, collection):
+def shopify_products(base, collection, cap=MAX_PER_BRAND):
     items, page = [], 1
     while True:
         url = f"{base}{collection}/products.json"
@@ -99,11 +100,11 @@ def shopify_products(base, collection):
         if not data or not data.get("products"):
             break
         items.extend(data["products"])
-        if len(data["products"]) < 250 or len(items) >= MAX_PER_BRAND:
+        if len(data["products"]) < 250 or len(items) >= cap:
             break
         page += 1
         time.sleep(0.6)
-    return items
+    return items[:cap]
 
 
 def normalise_shopify(p, src):
@@ -133,20 +134,23 @@ def normalise_shopify(p, src):
         "type": p.get("product_type") or "",
         "tags": tags,
         "fabric": fabric_tags(p.get("title"), p.get("product_type"), " ".join(tags), desc),
-        "description": desc[:900],
+        "description": desc[:500],
         "published": p.get("published_at") or p.get("created_at"),
     }
 
 
 # ------------------------------------------------------------ WooCommerce ----
-def woo_products(base):
+def woo_products(base, category=None, cap=MAX_SCAN):
     items, page = [], 1
     while True:
-        data = get_json(f"{base}/wp-json/wc/store/v1/products", params={"per_page": 100, "page": page})
+        params = {"per_page": 100, "page": page}
+        if category:
+            params["category"] = category
+        data = get_json(f"{base}/wp-json/wc/store/v1/products", params=params)
         if not data or not isinstance(data, list):
             break
         items.extend(data)
-        if len(data) < 100 or len(items) >= MAX_PER_BRAND:
+        if len(data) < 100 or len(items) >= cap:
             break
         page += 1
         time.sleep(0.6)
@@ -177,7 +181,7 @@ def normalise_woo(p, src):
         "type": ", ".join(cats),
         "tags": tags,
         "fabric": fabric_tags(p.get("name"), " ".join(cats + tags), desc),
-        "description": desc[:900],
+        "description": desc[:500],
         "published": None,
         "_cats": cats,
     }
@@ -191,22 +195,33 @@ def fetch_source(src):
 
     if platform in ("shopify", "auto"):
         collections = src.get("collections") or SHOPIFY_COLLECTION_GUESSES
+        explicit = bool(src.get("collections"))
         for col in collections:
             raw = shopify_products(base, col)
             if raw:
                 items.extend(normalise_shopify(p, src) for p in raw)
                 used = "shopify"
                 log(f"    {col}: {len(raw)}")
+                if not explicit:
+                    break  # guessed aliases usually point at the same collection
         if not items and platform == "auto":
             # whole store, keyword-filtered later
-            raw = shopify_products(base, "")
+            raw = shopify_products(base, "", cap=MAX_SCAN)
             if raw:
                 items.extend(normalise_shopify(p, src) for p in raw)
                 used = "shopify"
                 log(f"    /products.json: {len(raw)}")
 
     if not items and platform in ("woocommerce", "auto"):
-        raw = woo_products(base)
+        slugs_list = src.get("category_slugs", [])
+        raw = []
+        for slug in slugs_list:
+            raw = woo_products(base, category=slug)
+            if raw:
+                log(f"    category '{slug}': {len(raw)}")
+                break
+        if not raw:
+            raw = woo_products(base)
         if raw:
             used = "woocommerce"
             slugs = {s.lower() for s in src.get("category_slugs", [])}
@@ -221,6 +236,7 @@ def fetch_source(src):
         items = [i for i in items if is_saree(i["title"], i["type"], " ".join(i["tags"]))]
 
     # dedupe, clean private keys, require an image
+    items = items[:MAX_PER_BRAND * 2]
     seen, clean = set(), []
     for i in items:
         i.pop("_cats", None)
@@ -228,6 +244,7 @@ def fetch_source(src):
             continue
         seen.add(i["id"])
         clean.append(i)
+    clean = clean[:MAX_PER_BRAND]
 
     status = f"ok ({used})" if clean else ("no products found" if used else "no supported API")
     log(f"    => {len(clean)} sarees, {status}")
