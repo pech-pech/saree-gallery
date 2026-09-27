@@ -59,14 +59,6 @@
       "register": "handloom"
     },
     {
-      "key": "payalkhandwala",
-      "name": "Payal Khandwala",
-      "base": "https://payalkhandwala.com",
-      "platform": "auto",
-      "keyword_filter": true,
-      "register": "handloom"
-    },
-    {
       "key": "chidiyaa",
       "name": "Chidiyaa",
       "base": "https://chidiyaa.com",
