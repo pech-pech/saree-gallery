@@ -10,6 +10,10 @@ on:
 
 permissions:
   contents: write
+  
+  concurrency:
+    group: refresh
+    cancel-in-progress: false
 
 jobs:
   refresh:
@@ -35,5 +39,6 @@ jobs:
             echo "No changes"
           else
             git commit -m "catalog: refresh $(date -u +%Y-%m-%d)"
+            git pull --rebase origin main
             git push
           fi
