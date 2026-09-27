@@ -10,10 +10,10 @@ on:
 
 permissions:
   contents: write
-  
-  concurrency:
-    group: refresh
-    cancel-in-progress: false
+
+concurrency:
+  group: refresh
+  cancel-in-progress: false
 
 jobs:
   refresh:
