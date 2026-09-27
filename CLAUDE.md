@@ -1,4 +1,4 @@
-# Saree Gallery — project context
+# Chai Chai Chai by Pakhi (saree gallery) — project context
 
 Personal, non-commercial gallery of sarees from designer Indian labels. Static site on GitHub Pages
 (https://pech-pech.github.io/saree-gallery/), data refreshed daily by GitHub Actions. No backend.
@@ -22,7 +22,8 @@ Personal, non-commercial gallery of sarees from designer Indian labels. Static s
   20:9–22:9 phones show the whole photo.
 - `.github/workflows/refresh.yml` — daily 02:30 UTC, manual dispatch, and on pushes touching
   `sources.json` or `scripts/**`. Has a concurrency group and `git pull --rebase` before push.
-- `index.html` — single-file gallery (design "A: clean card", chosen by the owner). Header: wordmark, search /
+- `index.html` — single-file gallery (design "A: clean card", chosen by the owner). Header: "Chai Chai Chai" in
+  Parisienne (Google Fonts, `text=Chai` subset) over a small-caps "BY PAKHI" byline; search /
   Saved (badge) / view-toggle icons, then two dropdown buttons, **Material** and **Store**, that open a panel with a
   2-column grid of options + live counts and a "Show N sarees" button (multi-select; OR within a facet, AND across).
   Two views, remembered in localStorage `saree.mode` (default Feed):
