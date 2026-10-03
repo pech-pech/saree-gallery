@@ -1,0 +1,13 @@
+{
+  "extraKnownMarketplaces": {
+    "pech-skills": {
+      "source": {
+        "source": "github",
+        "repo": "pech-pech/proj"
+      }
+    }
+  },
+  "enabledPlugins": {
+    "boss@pech-skills": true
+  }
+}
