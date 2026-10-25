@@ -9,6 +9,7 @@ Supported platforms:
   shopify      -> {base}{collection}/products.json?limit=250&page=N   (public, no auth)
   woocommerce  -> {base}/wp-json/wc/store/v1/products?per_page=100&page=N  (public Store API)
   auto         -> probe Shopify first, then WooCommerce, else skip with a note
+  custom       -> a shop-specific fetcher in scripts/shop_<fetcher>.py (Anita Dongre, Ritu Kumar)
 
 Run locally:   python scripts/fetch_catalog.py
 Runs in CI via .github/workflows/refresh.yml
@@ -232,6 +233,16 @@ def fetch_source(src):
     key, base, platform = src["key"], src["base"].rstrip("/"), src.get("platform", "auto")
     log(f"-> {src['name']} ({platform})")
     items, used = [], None
+
+    if platform == "custom":
+        import importlib
+        name = src.get("fetcher", key)
+        mod = importlib.import_module(f"shop_{name}")
+        items = getattr(mod, f"fetch_{name}")(src)
+        for i in items:
+            i["fabric"] = i.get("fabric") or fabric_tags(i["title"], i.get("type"), " ".join(i.get("tags") or []),
+                                                         i.get("description"))
+        used = "custom" if items else None
 
     if platform in ("shopify", "auto"):
         collections = src.get("collections") or SHOPIFY_COLLECTION_GUESSES

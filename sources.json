@@ -1,5 +1,5 @@
 {
-  "_comment": "platform: shopify | woocommerce | auto. collections = paths under base that list sarees. keyword_filter=true keeps only items whose title/type/tags mention saree/sari.",
+  "_comment": "platform: shopify | woocommerce | auto | custom (custom uses scripts/shop_<fetcher>.py). collections = paths under base that list sarees. keyword_filter=true keeps only items whose title/type/tags mention saree/sari.",
   "sources": [
     {
       "key": "anavila",
@@ -100,6 +100,24 @@
       "platform": "auto",
       "keyword_filter": true,
       "register": "handloom"
+    },
+    {
+      "key": "anitadongre",
+      "name": "Anita Dongre",
+      "base": "https://www.anitadongre.com",
+      "platform": "custom",
+      "fetcher": "anitadongre",
+      "keyword_filter": true,
+      "register": "designer"
+    },
+    {
+      "key": "ritukumar",
+      "name": "Ritu Kumar",
+      "base": "https://ri.ritukumar.com",
+      "platform": "custom",
+      "fetcher": "ritukumar",
+      "keyword_filter": false,
+      "register": "designer"
     }
   ]
 }

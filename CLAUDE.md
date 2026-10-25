@@ -16,6 +16,10 @@ Personal, non-commercial gallery of sarees from designer Indian labels. Static s
   - WooCommerce: Store API `/wp-json/wc/store/v1/products`, category query merged with a full-store scan
     (needed for Anavila: some saris sit only in collection categories).
   - Caps are safety ceilings only (MAX_PER_BRAND=100000, MAX_SCAN=100000): every saree is kept (owner wants all). Descriptions trimmed to 500 chars, up to 20 images.
+  - Custom fetchers (`platform: custom`, `scripts/shop_<name>.py`): Anita Dongre (Salesforce Commerce Cloud:
+    Search-UpdateGrid listing + one Product-Variation JSON request per saree), Ritu Kumar (Fynd, sarees on
+    ri.ritukumar.com: reads the public storefront token from the collection page, then pages the catalog API;
+    falls back to the 12 server-rendered items if the API fails).
   - One failing shop never fails the run; an empty run keeps the previous catalog.
 - Installable app (PWA): `manifest.webmanifest`, `icons/`, `sw.js`. The service worker serves the page and
   `data/index.json` network-first (offline fallback) and `data/details/<shop>.json?v=` cache-first; it never caches brand
@@ -37,15 +41,14 @@ Personal, non-commercial gallery of sarees from designer Indian labels. Static s
   or opened. Search picks up a shop's tags once its file arrives. Shopify images are requested resized via the CDN's
   `width=` param; WooCommerce tiles use the Store API thumbnail. Items link out; nothing is re-hosted.
 
-## Current shops (11)
+## Current shops (13)
 Anavila (woocommerce, main), House of Masaba (shopify, main), Raw Mango, Ekaya, Akaaro, Suta,
-Chidiyaa, Abraham & Thakore, Torani, Neeta Lulla (shopify, /collections/sarees), Nalli (auto).
+Chidiyaa, Abraham & Thakore, Torani, Neeta Lulla (shopify, /collections/sarees), Nalli (auto), Anita Dongre (custom), Ritu Kumar (custom).
 
 Removed and why: Taneira (403 blocks bots), Gaurang Shah (no usable API), Gulaal (gulaal.org doesn't
 resolve; brand isn't saree-focused), Payal Khandwala (only 1 saree), Satya Paul / Shivan & Narresh /
 Papa Don't Preach (dropped by owner).
-Not addable (checked 2026-10-25): Anita Dongre (Salesforce Commerce Cloud, no public feed), Ritu Kumar
-(Fynd platform, no Shopify/WooCommerce feed), Sabyasachi (Shopify but products.json is hidden/empty),
+Not addable (checked 2026-10-25): Sabyasachi (Shopify but products.json is hidden/empty),
 Adeshwari Gadwals (no official online store found).
 
 ## Working rules
