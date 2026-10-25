@@ -34,13 +34,16 @@ Personal, non-commercial gallery of sarees from designer Indian labels. Static s
   background; search picks up tags once details arrive. Shopify images are requested resized via the CDN's
   `width=` param; WooCommerce tiles use the Store API thumbnail. Items link out; nothing is re-hosted.
 
-## Current shops (9)
+## Current shops (11)
 Anavila (woocommerce, main), House of Masaba (shopify, main), Raw Mango, Ekaya, Akaaro, Suta,
-Chidiyaa, Abraham & Thakore, Torani.
+Chidiyaa, Abraham & Thakore, Torani, Neeta Lulla (shopify, /collections/sarees), Nalli (auto).
 
 Removed and why: Taneira (403 blocks bots), Gaurang Shah (no usable API), Gulaal (gulaal.org doesn't
 resolve; brand isn't saree-focused), Payal Khandwala (only 1 saree), Satya Paul / Shivan & Narresh /
 Papa Don't Preach (dropped by owner).
+Not addable (checked 2026-10-25): Anita Dongre (Salesforce Commerce Cloud, no public feed), Ritu Kumar
+(Fynd platform, no Shopify/WooCommerce feed), Sabyasachi (Shopify but products.json is hidden/empty),
+Adeshwari Gadwals (no official online store found).
 
 ## Working rules
 - Owner uses the site mainly on an Android phone; check mobile layout first.

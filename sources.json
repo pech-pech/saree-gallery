@@ -81,6 +81,25 @@
       "platform": "auto",
       "keyword_filter": true,
       "register": "designer"
+    },
+    {
+      "key": "neetalulla",
+      "name": "Neeta Lulla",
+      "base": "https://www.neetalulla.com",
+      "platform": "shopify",
+      "collections": [
+        "/collections/sarees"
+      ],
+      "keyword_filter": false,
+      "register": "designer"
+    },
+    {
+      "key": "nalli",
+      "name": "Nalli",
+      "base": "https://www.nalli.com",
+      "platform": "auto",
+      "keyword_filter": true,
+      "register": "handloom"
     }
   ]
 }
