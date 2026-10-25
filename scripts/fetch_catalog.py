@@ -31,8 +31,8 @@ INDEX_KEYS = ("id", "brand", "title", "url", "price", "currency", "available", "
 
 UA = "Mozilla/5.0 (personal saree gallery; polite fetcher; contact via repo)"
 TIMEOUT = 25
-MAX_PER_BRAND = 1000      # sarees kept per shop
-MAX_SCAN = 3000           # raw products scanned when a whole store must be filtered
+MAX_PER_BRAND = 20000     # safety ceiling only: keep every saree a shop lists
+MAX_SCAN = 25000          # safety ceiling for raw products scanned per store
 MAX_IMAGES = 20         # photos kept per saree (the feed shows them all)
 SAREE_RE = re.compile(r"\b(saree|sarees|sari|saris)\b", re.I)
 FABRIC_WORDS = [

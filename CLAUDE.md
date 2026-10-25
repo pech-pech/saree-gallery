@@ -13,7 +13,7 @@ Personal, non-commercial gallery of sarees from designer Indian labels. Static s
     /collections/sarees|saree|sari|saris, stops at the first hit, else scans /products.json and keyword-filters.
   - WooCommerce: Store API `/wp-json/wc/store/v1/products`, category query merged with a full-store scan
     (needed for Anavila: some saris sit only in collection categories).
-  - Caps: MAX_PER_BRAND=1000 kept per shop, MAX_SCAN=3000 raw scanned. Descriptions trimmed to 500 chars, up to 20 images.
+  - Caps are safety ceilings only (MAX_PER_BRAND=20000, MAX_SCAN=25000): every saree is kept (owner wants all). Descriptions trimmed to 500 chars, up to 20 images.
   - One failing shop never fails the run; an empty run keeps the previous catalog.
 - Installable app (PWA): `manifest.webmanifest`, `icons/`, `sw.js`. The service worker serves the page and
   `data/index.json` network-first (offline fallback) and `data/details.json?v=` cache-first; it never caches brand
