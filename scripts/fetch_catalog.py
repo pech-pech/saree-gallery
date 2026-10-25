@@ -33,8 +33,9 @@ INDEX_KEYS = ("id", "brand", "title", "url", "price", "currency", "available", "
 
 UA = "Mozilla/5.0 (personal saree gallery; polite fetcher; contact via repo)"
 TIMEOUT = 25
-MAX_PER_BRAND = 20000     # safety ceiling only: keep every saree a shop lists
-MAX_SCAN = 25000          # safety ceiling for raw products scanned per store
+MAX_PER_BRAND = 100000    # safety ceiling only: keep every saree a shop lists
+MAX_SCAN = 100000         # safety ceiling for raw products scanned per store
+DETAILS_CHUNK = 5000      # sarees per details file, so no file nears GitHub's size limits
 MAX_IMAGES = 20         # photos kept per saree (the feed shows them all)
 SAREE_RE = re.compile(r"\b(saree|sarees|sari|saris)\b", re.I)
 FABRIC_WORDS = [
@@ -134,7 +135,7 @@ def shopify_collections_scan(base, seen_ids):
     handles.sort(key=lambda h: 0 if SAREE_RE.search(h.replace("-", " ")) else 1)
     found, started = [], time.time()
     for h in handles:
-        if len(seen_ids) >= MAX_SCAN or time.time() - started > 20 * 60:
+        if len(seen_ids) >= MAX_SCAN or time.time() - started > 30 * 60:
             log("    collections crawl stopped at the scan/time ceiling")
             break
         for p in shopify_products(base, f"/collections/{h}"):
@@ -327,9 +328,14 @@ def main():
 
 def write_data(generated_at, brands, items):
     """Split items into a small grid index and a details file keyed by id. Nothing is dropped."""
-    index, details = [], {}
+    index, details, per_brand = [], {}, {}
     for i in items:
         row = {k: i.get(k) for k in INDEX_KEYS}
+        n = per_brand.get(i["brand"], 0)
+        per_brand[i["brand"]] = n + 1
+        i["_chunk"] = n // DETAILS_CHUNK
+        if i["_chunk"]:
+            row["dc"] = i["_chunk"]  # which details file: <shop>.json for 0, <shop>.<dc>.json after
         row["img"] = i["images"][0]
         if i.get("thumb"):
             row["thumb"] = i["thumb"]
@@ -340,13 +346,14 @@ def write_data(generated_at, brands, items):
     DETAILS_DIR.mkdir(parents=True, exist_ok=True)
     dump = lambda obj: json.dumps(obj, ensure_ascii=False, separators=(",", ":"))
     INDEX_FILE.write_text(dump({"generated_at": generated_at, "brands": brands, "items": index}))
-    by_brand = {}
+    files = {}
     for i in items:
-        by_brand.setdefault(i["brand"], {})[i["id"]] = details[i["id"]]
-    for key, d in by_brand.items():
-        (DETAILS_DIR / f"{key}.json").write_text(dump({"generated_at": generated_at, "items": d}))
-    for f in DETAILS_DIR.glob("*.json"):  # shops that are gone or came back empty
-        if f.stem not in by_brand:
+        name = f"{i['brand']}.json" if not i["_chunk"] else f"{i['brand']}.{i['_chunk']}.json"
+        files.setdefault(name, {})[i["id"]] = details[i["id"]]
+    for name, d in files.items():
+        (DETAILS_DIR / name).write_text(dump({"generated_at": generated_at, "items": d}))
+    for f in DETAILS_DIR.glob("*.json"):  # shops or chunks that are gone
+        if f.name not in files:
             f.unlink()
     if OLD_DETAILS_FILE.exists():
         OLD_DETAILS_FILE.unlink()

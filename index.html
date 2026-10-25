@@ -293,10 +293,12 @@
   const detail = it => state.details[it.id] || null;
   // Photos, descriptions and tags live in one file per shop (data/details/<shop>.json), fetched the first
   // time that shop's sarees are on screen, so a big shop never slows the others down.
+  // Very big shops are split into files of 5,000 (index rows carry "dc", the file number).
   const detailLoads = {};
-  function needDetails(brand) {
-    if (!state.gen || detailLoads[brand]) return detailLoads[brand];
-    return detailLoads[brand] = fetch(`data/details/${encodeURIComponent(brand)}.json?v=${encodeURIComponent(state.gen)}`)
+  function needDetails(brand, dc) {
+    const name = dc ? `${brand}.${dc}` : brand;
+    if (!state.gen || detailLoads[name]) return detailLoads[name];
+    return detailLoads[name] = fetch(`data/details/${encodeURIComponent(name)}.json?v=${encodeURIComponent(state.gen)}`)
       .then(r => r.ok ? r.json() : { items: {} }).then(det => {
         Object.assign(state.details, det.items || {});
         state.items.forEach(it => { if (it.brand === brand) delete it._s; });   // search now includes tags
@@ -304,7 +306,7 @@
         feedDetailsArrived();
         const open = state.open && state.items.find(x => x.id === state.open);
         if (open && open.brand === brand) { const top = $('#sheet').scrollTop; openItem(state.open); $('#sheet').scrollTop = top; }
-      }).catch(() => { delete detailLoads[brand]; });   // the gallery still works without details
+      }).catch(() => { delete detailLoads[name]; });   // the gallery still works without details
   }
   const searchText = it => (it.title + ' ' + brandName(it.brand) + ' ' + it.fabric.join(' ') + ' ' +
     ((detail(it) || {}).tags || []).join(' ')).toLowerCase();
@@ -446,7 +448,7 @@
     const it = state.items.find(x => x.id === id); if (!it) return;
     state.open = id;
     const d = detail(it) || { images: [it.img], description: '' };
-    if (!detail(it)) needDetails(it.brand);
+    if (!detail(it)) needDetails(it.brand, it.dc);
     const saved = state.saved.has(id);
     $('#sheetBody').innerHTML = `
       <div class="imgs">${d.images.map(s => `<img src="${esc(sized(s, 1080))}" alt="" loading="lazy">`).join('')}</div>
@@ -581,7 +583,7 @@
   function hydrate(slide) {
     const it = state.items.find(x => x.id === slide.dataset.sid); if (!it) return;
     const d = detail(it);
-    if (!d) needDetails(it.brand);
+    if (!d) needDetails(it.brand, it.dc);
     if (slide.dataset.hydrated === (d ? 'full' : 'min')) return;
     slide.dataset.hydrated = d ? 'full' : 'min';
     const imgs = d && d.images && d.images.length ? d.images : [it.img];

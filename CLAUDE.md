@@ -8,13 +8,14 @@ Personal, non-commercial gallery of sarees from designer Indian labels. Static s
   optional `collections` (Shopify) or `category_slugs` (WooCommerce), `keyword_filter`, `register`
   (handloom | designer).
 - `scripts/fetch_catalog.py` — fetches every shop, keeps sarees only, normalises, then writes
-  `data/index.json` (grid fields only) and `data/details/<shop>.json` (images, description, tags, keyed by id; one file per shop).
+  `data/index.json` (grid fields only) and `data/details/<shop>.json` (images, description, tags, keyed by id; one file per shop, split into
+  `<shop>.<n>.json` every 5,000 sarees, with `dc: n` on those index rows).
   - Shopify: `{base}{collection}/products.json?limit=250&page=N`. In `auto` mode it guesses
     /collections/sarees|saree|sari|saris, stops at the first hit, else scans /products.json and keyword-filters. If deep pages error (Nalli fails
-    around page 90), it walks /collections.json collection by collection to reach the rest (20 min cap).
+    around page 90), it walks /collections.json collection by collection to reach the rest (30 min cap).
   - WooCommerce: Store API `/wp-json/wc/store/v1/products`, category query merged with a full-store scan
     (needed for Anavila: some saris sit only in collection categories).
-  - Caps are safety ceilings only (MAX_PER_BRAND=20000, MAX_SCAN=25000): every saree is kept (owner wants all). Descriptions trimmed to 500 chars, up to 20 images.
+  - Caps are safety ceilings only (MAX_PER_BRAND=100000, MAX_SCAN=100000): every saree is kept (owner wants all). Descriptions trimmed to 500 chars, up to 20 images.
   - One failing shop never fails the run; an empty run keeps the previous catalog.
 - Installable app (PWA): `manifest.webmanifest`, `icons/`, `sw.js`. The service worker serves the page and
   `data/index.json` network-first (offline fallback) and `data/details/<shop>.json?v=` cache-first; it never caches brand
