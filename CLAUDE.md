@@ -8,15 +8,16 @@ Personal, non-commercial gallery of sarees from designer Indian labels. Static s
   optional `collections` (Shopify) or `category_slugs` (WooCommerce), `keyword_filter`, `register`
   (handloom | designer).
 - `scripts/fetch_catalog.py` — fetches every shop, keeps sarees only, normalises, then writes
-  `data/index.json` (grid fields only, ~150 KB gzipped) and `data/details.json` (images, description, tags, keyed by id).
+  `data/index.json` (grid fields only) and `data/details/<shop>.json` (images, description, tags, keyed by id; one file per shop).
   - Shopify: `{base}{collection}/products.json?limit=250&page=N`. In `auto` mode it guesses
-    /collections/sarees|saree|sari|saris, stops at the first hit, else scans /products.json and keyword-filters.
+    /collections/sarees|saree|sari|saris, stops at the first hit, else scans /products.json and keyword-filters. If deep pages error (Nalli fails
+    around page 90), it walks /collections.json collection by collection to reach the rest (20 min cap).
   - WooCommerce: Store API `/wp-json/wc/store/v1/products`, category query merged with a full-store scan
     (needed for Anavila: some saris sit only in collection categories).
   - Caps are safety ceilings only (MAX_PER_BRAND=20000, MAX_SCAN=25000): every saree is kept (owner wants all). Descriptions trimmed to 500 chars, up to 20 images.
   - One failing shop never fails the run; an empty run keeps the previous catalog.
 - Installable app (PWA): `manifest.webmanifest`, `icons/`, `sw.js`. The service worker serves the page and
-  `data/index.json` network-first (offline fallback) and `data/details.json?v=` cache-first; it never caches brand
+  `data/index.json` network-first (offline fallback) and `data/details/<shop>.json?v=` cache-first; it never caches brand
   photos. Bump `CACHE` in sw.js if the cached file list changes.
 - Feed photos use `object-fit: contain` inside the card, switching to cover only when that crops <12%, so
   20:9–22:9 phones show the whole photo.
@@ -30,8 +31,9 @@ Personal, non-commercial gallery of sarees from designer Indian labels. Static s
   Feed = one saree per screen as a rounded photo card with brand/title/price and ✕ (hide) / ♥ (save) below it;
   swipe up for the next, sideways through all photos (loops); double-tap saves; title opens the detail sheet.
   Grid = masonry tiles in batches of 60. Detail sheet (bottom on mobile, side ≥900px) has "Similar drapes".
-  Loads index.json first (revalidated with `cache: 'no-cache'`), then details.json?v=<generated_at> in the
-  background; search picks up tags once details arrive. Shopify images are requested resized via the CDN's
+  Loads index.json first (revalidated with `cache: 'no-cache'`), then details/<shop>.json?v=<generated_at>:
+  shops with ≤1,500 sarees in the background, bigger ones (Nalli, Suta) only when one of their sarees is on screen
+  or opened. Search picks up a shop's tags once its file arrives. Shopify images are requested resized via the CDN's
   `width=` param; WooCommerce tiles use the Store API thumbnail. Items link out; nothing is re-hosted.
 
 ## Current shops (11)

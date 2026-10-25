@@ -2,7 +2,8 @@
 """
 Fetch saree listings from the shops in sources.json and write two files:
   data/index.json    what the gallery grid needs (loaded first, small)
-  data/details.json  descriptions, tags and extra images (loaded in the background)
+  data/details/<shop>.json  descriptions, tags and extra images, one file per shop
+                            (the page loads a shop's file only when it shows that shop's sarees)
 
 Supported platforms:
   shopify      -> {base}{collection}/products.json?limit=250&page=N   (public, no auth)
@@ -26,7 +27,8 @@ ROOT = Path(__file__).resolve().parent.parent
 SOURCES_FILE = ROOT / "sources.json"
 DATA_DIR = ROOT / "data"
 INDEX_FILE = DATA_DIR / "index.json"
-DETAILS_FILE = DATA_DIR / "details.json"
+DETAILS_DIR = DATA_DIR / "details"
+OLD_DETAILS_FILE = DATA_DIR / "details.json"  # pre-split single file, removed on write
 INDEX_KEYS = ("id", "brand", "title", "url", "price", "currency", "available", "fabric")
 
 UA = "Mozilla/5.0 (personal saree gallery; polite fetcher; contact via repo)"
@@ -44,6 +46,8 @@ FABRIC_WORDS = [
 SHOPIFY_COLLECTION_GUESSES = [
     "/collections/sarees", "/collections/saree", "/collections/sari", "/collections/saris",
 ]
+
+scan_failed = False  # set when a paginated scan stops on an error instead of reaching the end
 
 session = requests.Session()
 session.headers.update({"User-Agent": UA, "Accept": "application/json"})
@@ -98,10 +102,14 @@ def is_saree(*texts):
 
 # ---------------------------------------------------------------- Shopify ----
 def shopify_products(base, collection, cap=MAX_PER_BRAND):
+    global scan_failed
+    scan_failed = False
     items, page = [], 1
     while True:
         url = f"{base}{collection}/products.json"
         data = get_json(url, params={"limit": 250, "page": page})
+        if data is None and page > 1:
+            scan_failed = True
         if not data or not data.get("products"):
             break
         items.extend(data["products"])
@@ -110,6 +118,30 @@ def shopify_products(base, collection, cap=MAX_PER_BRAND):
         page += 1
         time.sleep(0.6)
     return items[:cap]
+
+
+def shopify_collections_scan(base, seen_ids):
+    """Products not yet seen, gathered collection by collection (each one is a short list)."""
+    handles, page = [], 1
+    while page <= 40:
+        data = get_json(f"{base}/collections.json", params={"limit": 250, "page": page})
+        cols = (data or {}).get("collections") or []
+        handles += [c.get("handle") for c in cols if c.get("handle") and c.get("products_count", 1)]
+        if len(cols) < 250:
+            break
+        page += 1
+    # saree collections first, so a time-out still leaves the important part
+    handles.sort(key=lambda h: 0 if SAREE_RE.search(h.replace("-", " ")) else 1)
+    found, started = [], time.time()
+    for h in handles:
+        if len(seen_ids) >= MAX_SCAN or time.time() - started > 20 * 60:
+            log("    collections crawl stopped at the scan/time ceiling")
+            break
+        for p in shopify_products(base, f"/collections/{h}"):
+            if p.get("id") not in seen_ids:
+                seen_ids.add(p.get("id"))
+                found.append(p)
+    return found
 
 
 def normalise_shopify(p, src):
@@ -218,6 +250,11 @@ def fetch_source(src):
                 items.extend(normalise_shopify(p, src) for p in raw)
                 used = "shopify"
                 log(f"    /products.json: {len(raw)}")
+                if scan_failed:
+                    # deep pages can fail on big stores; walk their collections to reach the rest
+                    more = shopify_collections_scan(base, {p.get("id") for p in raw})
+                    items.extend(normalise_shopify(p, src) for p in more)
+                    log(f"    collections crawl: +{len(more)} more")
 
     if not items and platform in ("woocommerce", "auto"):
         raw, ids = [], set()
@@ -284,7 +321,7 @@ def main():
         sys.exit(0)
 
     write_data(datetime.now(timezone.utc).isoformat(timespec="seconds"), brands, all_items)
-    log(f"Wrote {INDEX_FILE.name} + {DETAILS_FILE.name} — {len(all_items)} items across "
+    log(f"Wrote {INDEX_FILE.name} + details/<shop>.json — {len(all_items)} items across "
         f"{sum(1 for b in brands if b['count'])} brands")
 
 
@@ -300,10 +337,19 @@ def write_data(generated_at, brands, items):
         details[i["id"]] = {"images": i["images"], "description": i.get("description", ""),
                             "tags": i.get("tags", []), "type": i.get("type", ""),
                             "published": i.get("published")}
-    DATA_DIR.mkdir(parents=True, exist_ok=True)
+    DETAILS_DIR.mkdir(parents=True, exist_ok=True)
     dump = lambda obj: json.dumps(obj, ensure_ascii=False, separators=(",", ":"))
     INDEX_FILE.write_text(dump({"generated_at": generated_at, "brands": brands, "items": index}))
-    DETAILS_FILE.write_text(dump({"generated_at": generated_at, "items": details}))
+    by_brand = {}
+    for i in items:
+        by_brand.setdefault(i["brand"], {})[i["id"]] = details[i["id"]]
+    for key, d in by_brand.items():
+        (DETAILS_DIR / f"{key}.json").write_text(dump({"generated_at": generated_at, "items": d}))
+    for f in DETAILS_DIR.glob("*.json"):  # shops that are gone or came back empty
+        if f.stem not in by_brand:
+            f.unlink()
+    if OLD_DETAILS_FILE.exists():
+        OLD_DETAILS_FILE.unlink()
 
 if __name__ == "__main__":
     main()
