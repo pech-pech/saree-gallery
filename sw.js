@@ -1,8 +1,8 @@
 // Offline support for the installed app.
 // Page and index.json: network first, so the daily refresh always shows; the cached copy is used offline.
-// details.json?v=<refresh time>: cache first, since each refresh gets a new URL; older copies are dropped.
+// details/<shop>.json?v=<refresh time>: cache first, since each refresh gets a new URL; older copies are dropped.
 // Brand photos are not touched here; the browser's own cache handles them.
-const CACHE = 'saree-v2';
+const CACHE = 'saree-v3';
 const SHELL = ['./', 'index.html', 'manifest.webmanifest', 'icons/icon-192.png', 'icons/icon-512.png'];
 
 self.addEventListener('install', e => {
@@ -43,6 +43,6 @@ const cacheFirstVersioned = async req => {
 self.addEventListener('fetch', e => {
   const req = e.request, url = new URL(req.url);
   if (req.method !== 'GET' || url.origin !== location.origin) return;
-  if (url.pathname.endsWith('/data/details.json')) e.respondWith(cacheFirstVersioned(req));
+  if (url.pathname.includes('/data/details/')) e.respondWith(cacheFirstVersioned(req));
   else e.respondWith(networkFirst(req));
 });

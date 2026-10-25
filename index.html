@@ -274,7 +274,7 @@
     x: '<svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>',
   };
   const state = { items: [], brands: [], fabricSel: new Set(), brandSel: new Set(), q: '', savedOnly: false,
-                  saved: new Set(), open: null, details: null, hidden: new Set(), mode: 'feed', facet: null, pending: null };
+                  saved: new Set(), open: null, details: {}, gen: '', hidden: new Set(), mode: 'feed', facet: null, pending: null };
   try { state.saved = new Set(JSON.parse(localStorage.getItem('saree.saved') || '[]')); } catch {}
   try { state.hidden = new Set(JSON.parse(localStorage.getItem('saree.hidden') || '[]')); } catch {}
   try { state.mode = localStorage.getItem('saree.mode') === 'grid' ? 'grid' : 'feed'; } catch {}
@@ -290,7 +290,24 @@
   // Shopify's CDN resizes on request; ask for roughly what the screen needs instead of the original upload.
   const sized = (url, w) => /\/\/cdn\.shopify\.com\//.test(url) ? url + (url.includes('?') ? '&' : '?') + 'width=' + w : url;
   const srcset = url => /\/\/cdn\.shopify\.com\//.test(url) ? [360, 540, 720].map(w => `${sized(url, w)} ${w}w`).join(', ') : '';
-  const detail = it => (state.details && state.details[it.id]) || null;
+  const detail = it => state.details[it.id] || null;
+  // Photos, descriptions and tags live in one file per shop (data/details/<shop>.json), fetched the first
+  // time that shop's sarees are on screen, so a big shop never slows the others down.
+  // Very big shops are split into files of 5,000 (index rows carry "dc", the file number).
+  const detailLoads = {};
+  function needDetails(brand, dc) {
+    const name = dc ? `${brand}.${dc}` : brand;
+    if (!state.gen || detailLoads[name]) return detailLoads[name];
+    return detailLoads[name] = fetch(`data/details/${encodeURIComponent(name)}.json?v=${encodeURIComponent(state.gen)}`)
+      .then(r => r.ok ? r.json() : { items: {} }).then(det => {
+        Object.assign(state.details, det.items || {});
+        state.items.forEach(it => { if (it.brand === brand) delete it._s; });   // search now includes tags
+        if (state.q) render();
+        feedDetailsArrived();
+        const open = state.open && state.items.find(x => x.id === state.open);
+        if (open && open.brand === brand) { const top = $('#sheet').scrollTop; openItem(state.open); $('#sheet').scrollTop = top; }
+      }).catch(() => { delete detailLoads[name]; });   // the gallery still works without details
+  }
   const searchText = it => (it.title + ' ' + brandName(it.brand) + ' ' + it.fabric.join(' ') + ' ' +
     ((detail(it) || {}).tags || []).join(' ')).toLowerCase();
   const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -431,6 +448,7 @@
     const it = state.items.find(x => x.id === id); if (!it) return;
     state.open = id;
     const d = detail(it) || { images: [it.img], description: '' };
+    if (!detail(it)) needDetails(it.brand, it.dc);
     const saved = state.saved.has(id);
     $('#sheetBody').innerHTML = `
       <div class="imgs">${d.images.map(s => `<img src="${esc(sized(s, 1080))}" alt="" loading="lazy">`).join('')}</div>
@@ -565,6 +583,7 @@
   function hydrate(slide) {
     const it = state.items.find(x => x.id === slide.dataset.sid); if (!it) return;
     const d = detail(it);
+    if (!d) needDetails(it.brand, it.dc);
     if (slide.dataset.hydrated === (d ? 'full' : 'min')) return;
     slide.dataset.hydrated = d ? 'full' : 'min';
     const imgs = d && d.images && d.images.length ? d.images : [it.img];
@@ -651,15 +670,12 @@
       $('#foot').textContent = `Refreshed ${d.toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })}` +
         (skipped.length ? ` · not reachable: ${skipped.join(', ')}` : '');
     }
-    // versioned by refresh time, so the browser can keep it cached until the next refresh
-    return fetch('data/details.json?v=' + encodeURIComponent(cat.generated_at || '')).then(r => r.json()).then(det => {
-      state.details = det.items || {};
-      state.items.forEach(it => { delete it._s; });   // search now includes tags
-      if (state.q) render();
-      feedDetailsArrived();
-      if (state.open) { const top = $('#sheet').scrollTop; openItem(state.open); $('#sheet').scrollTop = top; }
-      window.__ready = true;
-    }).catch(() => {});                               // the gallery still works without details
+    // Details files are versioned by refresh time, so the browser keeps them cached until the next refresh.
+    // Smaller shops load in the background (for search by tags); big ones only when their sarees show up.
+    state.gen = cat.generated_at || '';
+    feedDetailsArrived();
+    const small = state.brands.filter(b => b.count && b.count <= 1500).sort((a, b) => a.count - b.count);
+    return small.reduce((p, b) => p.then(() => needDetails(b.key)), Promise.resolve()).then(() => { window.__ready = true; });
   }).catch(() => { $('#empty').hidden = false; $('#empty').textContent = 'Could not load data/index.json.'; });
 })();
 </script>
