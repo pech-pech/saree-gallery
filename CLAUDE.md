@@ -28,7 +28,11 @@ Personal, non-commercial gallery of sarees from designer Indian labels. Static s
   20:9–22:9 phones show the whole photo.
 - `.github/workflows/refresh.yml` — daily 02:30 UTC, manual dispatch, and on pushes touching
   `sources.json` or `scripts/**`. Has a concurrency group and `git pull --rebase` before push.
-- `index.html` — single-file gallery (design "A: clean card", chosen by the owner). Header: "Chai Chai Chai" in
+- Two looks, switched by the half-moon icon in the header and remembered in localStorage `saree.skin`:
+  **Editorial** (light only: centred uppercase Bodoni Moda masthead, Inter UI, square corners, oxblood #a3161d on Save /
+  Open; fonts self-hosted in `fonts/`, styles scoped under `[data-skin="editorial"]`) and **Classic** (the design below,
+  following the phone's light/dark). First visit: light phone opens Editorial, dark phone opens Classic.
+- `index.html` — single-file gallery (Classic = design "A: clean card", chosen by the owner). Header: "Chai Chai Chai" in
   Parisienne (Google Fonts, `text=Chai` subset) over a small-caps "BY PAKHI" byline; search /
   Saved (badge) / view-toggle icons, then two dropdown buttons, **Material** and **Store**, that open a panel with a
   2-column grid of options + live counts and a "Show N sarees" button (multi-select; OR within a facet, AND across).
