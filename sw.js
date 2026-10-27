@@ -2,8 +2,10 @@
 // Page and index.json: network first, so the daily refresh always shows; the cached copy is used offline.
 // details/<shop>.json?v=<refresh time>: cache first, since each refresh gets a new URL; older copies are dropped.
 // Brand photos are not touched here; the browser's own cache handles them.
-const CACHE = 'saree-v3';
-const SHELL = ['./', 'index.html', 'manifest.webmanifest', 'icons/icon-192.png', 'icons/icon-512.png'];
+const CACHE = 'saree-v4';
+const SHELL = ['./', 'index.html', 'manifest.webmanifest', 'icons/icon-192.png', 'icons/icon-512.png',
+  'fonts/bodoni-moda-latin-400-normal.woff2', 'fonts/bodoni-moda-latin-500-normal.woff2', 'fonts/bodoni-moda-latin-400-italic.woff2',
+  'fonts/inter-latin-400-normal.woff2', 'fonts/inter-latin-500-normal.woff2', 'fonts/inter-latin-600-normal.woff2'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL)).then(() => self.skipWaiting()));
