@@ -32,6 +32,9 @@ Personal, non-commercial gallery of sarees from designer Indian labels. Static s
   Parisienne (Google Fonts, `text=Chai` subset) over a small-caps "BY PAKHI" byline; search /
   Saved (badge) / view-toggle icons, then two dropdown buttons, **Material** and **Store**, that open a panel with a
   2-column grid of options + live counts and a "Show N sarees" button (multi-select; OR within a facet, AND across).
+  Order: daily seeded shuffle that deals one saree per shop per round (`shuffleSeeded`), so small shops sit up
+  front and Nalli (~80% of the catalog) fills the tail; every saree is kept. Labels use normal case at 13-14px;
+  chips and buttons are solid tints (`--chip`), no 1px outlines; tertiary text `--ink-3` passes 4.5:1.
   Two views, remembered in localStorage `saree.mode` (default Feed):
   Feed = one saree per screen as a rounded photo card with brand/title/price and ✕ (hide) / ♥ (save) below it;
   swipe up for the next, sideways through all photos (loops); double-tap saves; title opens the detail sheet.
