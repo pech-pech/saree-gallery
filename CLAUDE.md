@@ -64,3 +64,34 @@ Adeshwari Gadwals (no official online store found).
 - After changing the fetcher or sources, trigger the workflow (`gh workflow run refresh.yml`),
   then read the log (`gh run view --log`) and report per-shop counts.
 - Keep it static: no server, no accounts, no re-hosting of brand images.
+
+## Working with M (owner)
+- Moved here from a claude.ai Projects workspace on 2026-11-02; this file is now the single source of context.
+- M uses an Android phone: keep replies short, one step at a time. M merges PRs from the phone.
+- Every layout must fit 21:9 and 22:9 screens (test at 412x961 and 412x1007 CSS px).
+- Keep every saree. Make things faster by restructuring (split files, lazy loads), never by trimming content.
+- Before building a UI change, show 2-4 mockups and let M pick one. Past picks are in `design/mockups/README.md`.
+- Shortcuts M uses:
+  - `vrf`: restate the task and ask multiple-choice questions before doing anything.
+  - `/mcq`: one multiple-choice question at a time (max 6), then proceed.
+  - `saiyan`: work fast with parallel agents on multi-step tasks.
+- Prices: M wants them shown in BDT (taka), at the xe.com INR→BDT rate plus 1.5% (asked 2026-10-27). Not built yet.
+
+## Project history
+- PR #1: Anavila full-store WooCommerce scan, CLAUDE.md added, Payal Khandwala removed (3,166 sarees, 9 shops).
+- PR #2: split data into a small grid index plus detail files loaded later; resized CDN images; caching.
+- PR #3: Reels-style Feed as default (M picked it over a swipe deck); photo cap 4 → 20.
+- PR #4: installable PWA, design "A: clean card" with Material/Store dropdown filters, tall-screen fit.
+- PR #5: "Chai Chai Chai by Pakhi" wordmark (Parisienne, title over small-caps "BY PAKHI").
+- PR #7: Nalli, Anita Dongre, Ritu Kumar, Neeta Lulla added; per-shop cap removed; details split per shop
+  (33,850 sarees, 13 shops; daily refresh ~30 min).
+- PR #8: even shop mix in the feed, larger readable labels, tinted chips instead of outlines.
+- PR #9: Editorial light look (M picked "Editorial luxe" from the 2026-10-27 mood mockups) with a look switch;
+  the old design stays as Classic.
+
+## Open items (as of 2026-11-02)
+- Show prices in taka (BDT, xe.com rate + 1.5%) on the live site: agreed, not built. Needs a rate source the
+  static site or the daily workflow can read.
+- Sabyasachi: blocked, its Shopify store hides products.json.
+- Adeshwari Gadwals: waiting on M for a store link.
+- The app icon still shows the old italic "S", not the new wordmark.
